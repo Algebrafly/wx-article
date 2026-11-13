@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用 Hermes 做项目管理 · 系列目录</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --card:#1c2430;
+    --line:#2d3846; --text:#e6edf3; --dim:#8b98a8; --accent:#22d3ee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:56px 24px 80px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+  .hero{text-align:center;margin-bottom:44px;}
+  .hero img{width:100%;border-radius:14px;display:block;}
+  .hero h1{font-size:32px;letter-spacing:.5px;margin:36px 0 12px;}
+  .hero p{color:var(--accent);font-size:15px;letter-spacing:1px;}
+  .hero .sub{color:var(--dim);font-size:14px;margin-top:14px;letter-spacing:0;}
+
+  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:48px;}
+  .item{
+    display:block;text-decoration:none;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;padding:20px 22px 18px;
+    transition:transform .18s ease,border-color .18s ease,background .18s ease;
+    position:relative;overflow:hidden;
+  }
+  .item::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);
+  }
+  .item:hover{transform:translateY(-3px);border-color:var(--c);background:#222c3c;}
+  .item .no{font-size:12px;font-weight:700;color:var(--c);letter-spacing:1px;}
+  .item .name{font-size:17px;font-weight:700;margin:6px 0 8px;}
+  .item .tag{font-size:13px;color:#a8b6c6;line-height:1.6;}
+  .item .out{margin-top:12px;font-size:12px;color:var(--c);opacity:.85;}
+
+  .toc{margin-top:64px;}
+  .toc img{width:100%;border-radius:14px;display:block;}
+  .note{
+    margin-top:40px;padding:20px 22px;border-left:3px solid #fbbf24;
+    background:var(--panel);border-radius:0 10px 10px 0;
+    font-size:14px;color:#c2cfdc;line-height:1.9;
+  }
+  .note b{color:#fbbf24;}
+  footer{margin-top:56px;text-align:center;font-size:12.5px;color:#5f6d7e;line-height:1.9;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <img src="assets/series-cover.png" alt="用 Hermes 做项目管理 · 系列封面">
+    <h1>用 Hermes 做项目管理</h1>
+    <p>十大领域 · 十一篇 · 一套可落地的 SKILL</p>
+    <p class="sub">每一篇都是同一个结构：过程 ITTO → 两到三个重点 → 文档模板 → 组织过程资产 → 群消息格式 → 边界</p>
+  </div>
+
+  <div class="list">
+    <a class="item" href="../hermes-project-management/index.html" style="--c:#22d3ee">
+      <div class="no">01</div><div class="name">整体框架</div>
+      <div class="tag">把项目经理拆成三层来配</div><div class="out">框架与 Profile</div>
+    </a>
+    <a class="item" href="../hermes-scope-management/index.html" style="--c:#fb7185">
+      <div class="no">02</div><div class="name">范围管理</div>
+      <div class="tag">把范围写成事实</div><div class="out">需求跟踪矩阵</div>
+    </a>
+    <a class="item" href="../hermes-schedule-management/index.html" style="--c:#34d399">
+      <div class="no">03</div><div class="name">进度管理</div>
+      <div class="tag">估得准，盯得早</div><div class="out">PERT 与 CPM</div>
+    </a>
+    <a class="item" href="../hermes-cost-management/index.html" style="--c:#e8b04b">
+      <div class="no">04</div><div class="name">成本管理</div>
+      <div class="tag">花得值不值</div><div class="out">EVM 与 EAC</div>
+    </a>
+    <a class="item" href="../hermes-quality-management/index.html" style="--c:#f472b6">
+      <div class="no">05</div><div class="name">质量管理</div>
+      <div class="tag">把「算不算完成」钉死</div><div class="out">COQ 与控制图</div>
+    </a>
+    <a class="item" href="../hermes-resource-management/index.html" style="--c:#a3e635">
+      <div class="no">06</div><div class="name">资源管理</div>
+      <div class="tag">人不是可分配的单位</div><div class="out">负荷与产能</div>
+    </a>
+    <a class="item" href="../hermes-communication-management/index.html" style="--c:#60a5fa">
+      <div class="no">07</div><div class="name">沟通管理</div>
+      <div class="tag">把没说出口的放到台面上</div><div class="out">沟通漏斗</div>
+    </a>
+    <a class="item" href="../hermes-risk-management/index.html" style="--c:#fbbf24">
+      <div class="no">08</div><div class="name">风险管理</div>
+      <div class="tag">登记册为什么会死</div><div class="out">5×5 矩阵</div>
+    </a>
+    <a class="item" href="../hermes-procurement-management/index.html" style="--c:#f97316">
+      <div class="no">09</div><div class="name">采购管理</div>
+      <div class="tag">合同就是一张风险分配表</div><div class="out">合同风险谱</div>
+    </a>
+    <a class="item" href="../hermes-stakeholder-management/index.html" style="--c:#c084fc">
+      <div class="no">10</div><div class="name">干系人管理</div>
+      <div class="tag">名单之外的人才是变量</div><div class="out">四象限与信号</div>
+    </a>
+    <a class="item" href="../hermes-integration-management/index.html" style="--c:#2dd4bf">
+      <div class="no">11</div><div class="name">整合管理</div>
+      <div class="tag">十个领域打架时听谁的</div><div class="out">变更分级与收尾</div>
+    </a>
+  </div>
+
+  <div class="toc">
+    <img src="assets/series-toc.png" alt="系列目录页">
+  </div>
+
+  <div class="note">
+    <b>整个系列的共同前提</b>：统一主键、统一口径、统一模板。不是为了整齐好看，是为了让十个领域的数字能互相对上——进度说完成 40%、成本说花了 45%、质量说缺陷翻倍，单看每一条都是汇报，放在一起才是判断。
+  </div>
+
+  <footer>
+    共 11 篇 · 每篇 5 张配图 · 均为同一结构<br/>
+    点击卡片打开对应推文的本地预览
+  </footer>
+
+</div>
+</body>
+</html>
