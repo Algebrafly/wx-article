@@ -1,0 +1,9 @@
+# 敏感配置 / 凭据
+**/publish.py
+.uploads/
+
+# 系统 / IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
