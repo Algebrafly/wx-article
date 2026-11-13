@@ -1,0 +1,16 @@
+# system
+.DS_Store
+Thumbs.db
+.trae/
+.trae-html-share-packages/
+.fonts/
+.screenshots/
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# archives
+*.zip
+*.tar.gz

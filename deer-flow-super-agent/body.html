@@ -1,0 +1,161 @@
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">2026 年 2 月 28 日，DeerFlow 2.0 登上 GitHub Trending 第一。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">我原本以为又是一个"Deep Research"框架。点进去看 README 才发现，v2 和 v1 没有共用一行代码。它把自己重新定义成了一个 <strong style="color:#6366f1;">super agent harness</strong>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">从"做研究的 agent"变成"让 agent 真正能干活的运行时"。一个小升级，背后是完全不同的设计哲学。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">这篇把 DeerFlow 2.0 拆给你看：它的 super agent 概念长什么样、lead agent 怎么派 sub-agent、哪些设计是真正"想明白"了的，以及这套架构对想自己搭 agent 的个人和企业有什么直接启发。</p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">先把 harness 和 framework 分清楚</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">大多数多 agent 产品是 framework。你自己搭图、自己写节点逻辑、自己选 memory 和 tool——框架只是帮你把各个节点连起来。LangGraph、CrewAI、AutoGen 都是这条路线。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 2.0 是 harness。它假设一个场景已经成立：一个 lead agent 带领一群 sub-agent 完成复杂任务。它把这个假设变成了一套"开箱就能跑"的运行时——内置文件系统、memory、skills、沙箱执行、context compaction、thread 隔离，全都给你装好。</p>
+
+<p style="background:#f4f3fb;border-left:4px solid #6366f1;padding:16px 18px;margin:0 0 20px;font-size:14.5px;color:#3b3f4a;line-height:1.85;">Framework 让你自己组装 agent；Harness 假设 agent 的形状已经存在，帮你把它真正养活。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">这个差异决定了 DeerFlow 的产品形态：你跑起来之后，看到的是一个已经能对话、能规划、能派活、能调工具、能跨 IM 的完整 agent，而不是一张空白的 LangGraph 画布。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">但它不是写死的。DeerFlow 2.0 的一大卖点就是"拆掉重组也能活"——harness 层和 app 层严格分离，你可以替换后端、换前端、接自己的 IM，而不用改 agent 核心逻辑。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/topology.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 1 · 四层结构 + Harness/App 单向依赖</p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">Harness 内部长什么样</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">一个 lead agent 在中间，六件基础设施围着它转。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">lead agent 的定位很清楚：它负责规划、委派、合成、校验。模型一次只能看有限的上下文，所以 lead 不能亲自做所有事——它把具体活派给 sub-agent，自己只做两件事：拆对了、验收对了。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/harness.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 2 · Lead Agent + 六件基础设施</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">六件基础设施里有四件是"每次模型调用前自动跑"的 middleware chain：ThreadData 建好 workspace/上传/输出路径，Sandbox 拿执行边界，Summarization 做 context reduction，TodoList 保持任务跟踪。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">剩下两件是常驻服务：Memory 做长期记忆和 compaction，Sandbox 给每次执行画边界。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">工具来源有三条：内置（present_files、ask_clarification、review_skill_package）、配置（bash、read_file、write_file、web search）、MCP。三者合并之后注入给 agent。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">thread 级别的隔离是硬性的：每个会话一个独立的数据目录，uploads 先过路径穿越检查、staging 成 `.upload-*.part` 再原子替换，sandbox 里的虚拟路径映射到真实路径。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;"><strong style="color:#6366f1;">Harness 的价值不在每一项单独多牛，在于它们被编排成了"每次 run 自动执行"的顺序。</strong></p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">Lead 怎么派 sub-agent</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 的 sub-agent 不是默认行为。lead agent 只有在三种情况下才考虑派活：真能并行、需要专业化工具、或者必须隔离上下文。大任务不等于该拆。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/subagent.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 3 · 两种 context_mode + 确定性 receipts</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">lead 派活时要写三件事：委派 prompt、termination conditions、acceptance_criteria。后两者是关键——没有明确的"任务完成的标准"，sub-agent 很可能在边界处停不下来。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">上下文有两种模式：isolated 和 snapshot。isolated 只给 sub-agent 委派 prompt，最干净但依赖 prompt 本身足够自足。snapshot 额外继承父对话的压缩上下文，适合 handoff 场景——代价是 token 多。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">这里有个细节我觉得想得特别到位：sub-agent 的 system prompt、reasoning blocks、pending tool calls 都不会被 snapshot 带过去。历史对话会被带，但不是全部——reasoning 过程会被跳过，只保留有用的文本和 tool-call 摘要。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">sub-agent 跑完之后，lead agent 不会信它说什么。Lead 有一套确定性的 receipts 账本，所有 tool-call 都有唯一 ID 和执行证据。acceptance_criteria 里可以写具体的验收条件——比如 <code style="background:#eef0f5;color:#c7254e;padding:1px 5px;border-radius:4px;font-family:Consolas,Menlo,monospace;font-size:13px;">file:../outputs/report.csv csv-columns:["id","name"]</code>，agent 自己跑 shell 检查一遍再报结果。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">还有一个被中断 sub-agent 的处理：cancel 之后它不会立刻释放 execution slot，会先把 sandbox cleanup 和插件回调通知跑完。被取消的 sub-agent 保留已经完成的 token 消耗和已发布的结果。</p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">三个容易被忽略但价值巨大的设计</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 有三套机制我觉得特别值得抄：Session Goals、Context Compaction、Long-Term Memory。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/context.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 4 · 三者配合，让 lead 在长 context 里不丢目标</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">Session Goals：让 agent 知道自己"还没做完"</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">/goal 命令把一个完成条件挂到当前 thread 上。它不是一个 skill 激活，而是会话级别的状态——跨 turn 生效。每次 run 结束之后，DeerFlow 会用一个独立的 evaluator model 判断 goal 是否完成。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">如果没完成且 agent 没有 blocker（不是 needs_user_input、不是 run_failed、不是 external_wait），DeerFlow 会自动发一个隐藏 continuation 让 agent 继续。连续两次"没进展"会停止，最多 8 次隐藏续跑。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">这件事解决了 agent 的"任务中断综合症"：用户不说"继续"，agent 就停下来。有了 Session Goal，agent 自己知道该往前推，也知道什么时候真的停下来。</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">Context Compaction：token 窗口的自动管理</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">context 快满的时候，DeerFlow 会自动把老消息压缩成一个摘要，注入到隐藏的 durable context 里。sub-agent 也会做这件事——而且它的 system prompt（角色定义 + 报告契约）会保留下来，确保压缩后的 agent 还知道自己是谁、在干什么。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">如果只压缩 system prompt + 当前请求，compaction 会被跳过——说明这次压缩会让 agent 完全失忆。这是个很细的边界判断。</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">Long-Term Memory：按 user/agent 防抖</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 的记忆系统（DeerMem + Mem0）会按 conversation + user + agent 三级防抖。30 秒安静期内的新对话，之前的记忆写入会被合并；300 秒是硬上限。记忆提取是串行的，所以 backlog 很长时会排队。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">另外，compaction 删掉的消息不会立刻丢失——emergency snapshot 独立队列，按到达顺序保留，不会被后来的 compaction 覆盖。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;"><strong style="color:#6366f1;">这三套机制的共同目标只有一个：让 lead agent 在 100k+ context 里持续聚焦、不丢用户意图。</strong></p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">Gateway：同一个 agent，从所有 IM 进来</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 的 Gateway 设计也挺聪明：飞书、Slack、Telegram、Discord、钉钉，全都桥接到同一个 LangGraph runtime。桥接层只做协议转换，不复制 agent 逻辑。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/bridge.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 5 · 桥接层只做协议转换，run lifecycle 完全复用</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">定时任务也走同一条 run lifecycle——scheduler 决定"什么时候跑"，run lifecycle 决定"怎么跑"。所以定时任务和手动触发用的是完全相同的 agent 路径，不用维护两套逻辑。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">run-context 的信任边界做得很细：non_interactive、disable_clarification、github_token 这些敏感字段，只有 scheduler 和 IM/webhook 这种内部认证调用者才能触发。普通 web API 调用者传这些字段会被 scrub 掉。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">Nginx 默认只绑 loopback——<code style="background:#eef0f5;color:#c7254e;padding:1px 5px;border-radius:4px;font-family:Consolas,Menlo,monospace;font-size:13px;">BIND_HOST=0.0.0.0</code> 是 CI 里明确 reject 的。Gateway 的 8001 端口永远不对外暴露，只有 Nginx 的 2026 是公共入口。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;"><strong style="color:#6366f1;">这不是保守，是跑 agent 必须有的边界——agent 能执行 shell、能读写文件，一个 Gateway admin 等同于服务器上的代码执行权限。</strong></p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">给想自己搭 super agent 的五条启发</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">读完 DeerFlow 2.0，我觉得它不是一个"产品"，而是一套很有指导意义的设计。对个人开发者和企业自己搭 agent，有几个点特别直接：</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">一、从一开始就想清楚"谁是 lead"</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">多 agent 系统不需要一个中央大脑，但必须有一个"最后的判断者"。DeerFlow 的 lead agent 只做规划、委派、合成、校验四件事——它不亲自干活。如果你自己搭，先把 lead 的职责写出来，再谈 sub-agent。</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">二、委派就是要写 acceptance_criteria</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">不写完成标准的任务就是一个 prompt。DeerFlow 里连检查 CSV 头、JSON 语法、测试是否通过都做成了可机器判定的 criteria。这意味着 lead 不用信 sub-agent 的口头报告，只要验证证据。</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">三、Thread 隔离是每个 agent 运行时必须有的</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">我见过太多 demo 直接把所有对话塞进一个 prompt。thread 级别隔离带来三个好处：独立文件系统、独立 memory 上下文、独立 run 状态。DeerFlow 的每个 thread 有独立数据目录、uploads 先 staging 再原子替换——这不是锦上添花，是生产可用的前提。</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">四、IM 桥接层只管协议，不复制 agent 逻辑</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">飞书一套、Slack 一套、钉钉一套，三份几乎一样的代码在维护。DeerFlow 的做法是桥接层只做"消息进来 → 变成 LangGraph run"和"run 结果 → 变成消息出去"，中间的 agent 逻辑一条。定时任务也走同一条 run lifecycle。</p>
+
+<p style="font-size:16px;font-weight:bold;color:#6366f1;margin:24px 0 10px;">五、安全模型要跟着 agent 的能力长</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">agent 能执行 shell，管理员权限等于服务器代码执行。DeerFlow 做了三件事：默认 loopback 绑定、run-context 信任边界（敏感字段只给内部认证调用者）、sandbox provider 选 Docker 隔离而不是本地直连。个人开发可以先简单点，但企业部署必须跟上。</p>
+
+<p style="text-align:center;margin:54px 0 0;"><span style="display:inline-block;border:2px solid #6366f1;color:#6366f1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #06b6d4;">7</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#6366f1;margin:18px 0 26px;">几个真正踩过的坑</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 文档里还有很多小细节，看得出是真跑过的团队写的。举几个：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">provider 的 tool_call_id 不是全局唯一的。同一个 tool_call_id 在不同 run 里会被复用。所以 DeerFlow 在 sub-agent 执行记录里带了 run 维度的 execution_id，避免一个 run 取消另一个 run 的后台任务。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">MCP server 的 tool-call 失败，不会让整个 task 失败——DeerFlow 保留其他 tool 的输出，标记这个 task 为 failed 但带着已完成的结果。因为一个 batch 里有多个 tool call，不该因为一个失败就全部丢掉。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">memory backend 里 malformed record 不会返回部分数据。fail_open 模式返回空，fail_closed 返回错误。不会因为某条坏记录把其他好的也带崩。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">test acceptance 里，Go 的 <code style="background:#eef0f5;color:#c7254e;padding:1px 5px;border-radius:4px;font-family:Consolas,Menlo,monospace;font-size:13px;">[no test files]</code> 不阻止另一个包的 <code style="background:#eef0f5;color:#c7254e;padding:1px 5px;border-radius:4px;font-family:Consolas,Menlo,monospace;font-size:13px;">ok</code> 总结。全空的 <code style="background:#eef0f5;color:#c7254e;padding:1px 5px;border-radius:4px;font-family:Consolas,Menlo,monospace;font-size:13px;">ok</code>  banner 标记为 UNVERIFIED，不算通过——因为 Go 退出码 0 也可能根本没跑测试。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">这些细节告诉你一个事实：DeerFlow 不是"搭个 demo 就 open source"，是真在生产里跑过、被各种边缘 case 捶过的系统。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">&nbsp;</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">最后一个我觉得挺有意思的点：DeerFlow 的姐妹项目 LLM Space 是一个桌面工具，用来原型化 agent 想法、检查 harness 每一步、重放失败、benchmark 性能。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">先有了能被重放、能被 benchmark 的 harness，才能有真正能被证明越来越好的 agent。这两件事之间有个经常被忽略的因果链。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">DeerFlow 跑通了这条链：把 agent 从 demo 提升到了 harness，再用 harness 支撑了整个 super agent 的生态。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;">&nbsp;</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.9;margin:0 0 20px;"><strong style="color:#6366f1;">如果你在自己搭 super agent，先问自己：你的 harness 是什么？</strong></p>
+
+<p style="text-align:center;font-size:14px;color:#8b949e;margin:36px 0 10px;">— 完 —</p>
