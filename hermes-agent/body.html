@@ -1,0 +1,147 @@
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Nous Research 出了一款 agent，叫 Hermes Agent。这家实验室你可能听过——Hermes、Nomos、Psyche 几个开源模型都是他们训的。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">官方首页第一句话挺冲：内置学习闭环的 agent，只此一家。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">宣传口径先放一边。把文档翻完，它确实和 Claude Code、Cursor 那类工具不是同一个物种。这篇按「是什么 → 学什么 → 装 → 用」的顺序拆。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1a1a1a;color:#1a1a1a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #10b981;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#10b981;margin:18px 0 26px;">它不是一个 IDE 插件</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">文档里这句话值得抄下来：它既不是绑在 IDE 上的编码助手，也不是包着单个 API 的聊天壳。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它是一个<span style="font-weight:bold;color:#1a1a1a;">自主 agent</span>，跑得越久能力越强。你把它放在哪，它就在哪活——5 美元的 VPS、GPU 集群，或者 Daytona、Modal 这类闲时几乎不花钱的无服务器环境。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">所以典型用法是这样的：你在 Telegram 里发一句，它在云上的 VM 里干活，你根本不用 SSH 进去。它不拴在你的笔记本上。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">终端后端给了六种：本机、Docker、SSH、Daytona、Singularity、Modal。前三种是把命令跑在哪定下来，后三种是让它休眠也能留着环境。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">入口给了二十多个。CLI 和 TUI 只是其中两个。Telegram、Discord、Slack、WhatsApp、Signal、Matrix、邮件、短信，还有钉钉、飞书、企业微信、QQ 机器人，都能接。一个 gateway 统一管。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1a1a1a;color:#1a1a1a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #10b981;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#10b981;margin:18px 0 26px;">学习闭环：它自己长技能</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这是全篇最该讲清楚的一节。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">别的 agent 的技能是人事先写好的。Hermes 不一样：它干完活会自己提炼出一份 SKILL.md，下次遇到同类任务直接调出来用，用着用着还会改。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/loop.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">干活 → 记事 → 提技能 → 下次召回，四步转一圈。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">具体拆成三件事：</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#10b981;">记忆</span>：它自己整理记忆，还会定期提醒自己「该存点什么了」。跨会话召回用的是 FTS5 全文检索加 LLM 摘要，不是把历史对话一股脑塞进上下文。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#10b981;">技能</span>：技能就是一份带名字、描述和步骤的 SKILL.md。它平时只读描述（几乎不花钱），真碰到对应任务才加载全文。所以技能装一百个也不会把每次请求撑爆。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#10b981;">用户建模</span>：接了 Honcho，跨会话一点点攒出「你是谁、你要什么」。这个我觉得是最容易被低估的一块。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">三段拼起来才叫闭环。少一段，所谓「自我进化」就只是个词。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1a1a1a;color:#1a1a1a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #10b981;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#10b981;margin:18px 0 26px;">三层结构：模型、能力、入口</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">文档没这么分，是我读完之后的归纳。这么分的好处是：想换任何一层，都不用动另外两层。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/layers.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">三层解耦。换模型不用重装，换入口不用改配置。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">模型层支持三十多家供应商。Nous Portal、Anthropic、OpenAI Codex、OpenRouter、DeepSeek、Kimi、通义、Gemini、Grok、GitHub Copilot，还有 Ollama、LM Studio、vLLM 这类自建端点。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">有一条硬门槛要单独说：<span style="font-weight:bold;color:#10b981;">上下文至少 64K token，低于这个值启动就被拒</span>。理由是窗口太小撑不住多步工具调用的工作记忆。跑本地模型的话记得把 ctx 拉到 64K 以上。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">能力层是六十多个内置工具、技能系统、记忆、MCP 服务器，还有子代理并行。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">接入层就是那二十多个平台，外加 ACP 编辑器集成。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1a1a1a;color:#1a1a1a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #10b981;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#10b981;margin:18px 0 26px;">怎么装</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">三条路，按你的系统挑一条就行。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/install.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">桌面装最省事，一行命令最轻。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">macOS 和 Windows 用户直接去官网下桌面安装包，CLI 和图形界面一起装好，官方推荐这一条。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">不想装图形界面，Linux / macOS / WSL2 / Android Termux 一行命令：</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Windows 原生就在 PowerShell 里跑：</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">iex (irm https://hermes-agent.nousresearch.com/install.ps1)</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">装完记得重载 shell，<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">source ~/.bashrc</span> 或 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">source ~/.zshrc</span>。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">然后配模型。这一步最重要，别跳。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">最省事的是 Nous Portal：一次 OAuth 登录，模型和四个工具（联网搜索、文生图、TTS、云浏览器）一起开通。</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">hermes setup --portal</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">想自己带 key，用 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">hermes model</span> 交互式挑供应商。首次 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">hermes setup</span> 会给三个模式：快速（Portal OAuth）、完整（自己走每个选项）、空白（除了模型、文件操作、终端，其余全关）。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">配置分两个文件存，这点做得干净：密钥进 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">~/.hermes/.env</span>，非密钥设置进 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">~/.hermes/config.yaml</span>。用命令行改会自动分到对的文件里。</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">hermes config set model anthropic/claude-opus-4.6
+hermes config set terminal.backend docker</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1a1a1a;color:#1a1a1a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #10b981;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#10b981;margin:18px 0 26px;">怎么用</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">先跑一次普通对话，别的都往后放。</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">hermes            # 经典 CLI
+hermes --tui      # 新版 TUI，有弹层和鼠标选择
+hermes --continue # 或 -c，恢复上一次会话</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">进去之后会看到一个欢迎横幅，写着当前模型、可用工具、已装技能。这时候问一句能验证的问题，比如让它总结当前仓库、列出磁盘占用最大的五个目录。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">打一个 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/</span> 会弹出命令补全。常用的就几个：<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/help</span>、<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/tools</span>、<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/model</span>、<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/save</span>。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">技能这块值得单独说。安装、搜索、浏览：</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">hermes skills browse
+hermes skills search kubernetes
+hermes skills install openai/skills/k8s</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">装之前会先跑一次安全扫描，这点比很多同类工具讲究。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">装好的技能会自动变成一个斜杠命令。<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/k8s deploy the staging manifest</span>，直接带着需求跑；只打 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">/k8s</span> 就加载技能再问你要干什么。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">命令不多，一张图能装下：</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/commands.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">配置、技能、接入，三组命令足够日常用。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">要做成机器人或常驻助手，等 CLI 跑通之后再 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">hermes gateway setup</span>，选平台。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">要让它别乱动你的本机，把终端后端换成容器或远程：</p>
+
+<p style="background:#0b1613;color:#e8f5ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:14px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">hermes config set terminal.backend docker
+hermes config set terminal.backend ssh</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">接 MCP 服务器就在 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">config.yaml</span> 里加一段 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">mcp_servers</span>，写法和其他 MCP 客户端一样。要在编辑器里用，<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">hermes acp</span> 起 ACP 服务。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1a1a1a;color:#1a1a1a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #10b981;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#10b981;margin:18px 0 26px;">几句实话</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Hermes 的差异点不在工具数量，也不在支持的平台数。是那个闭环。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">但闭环有个前提：它得先真的干成几件事，才有经验可提炼。你如果只拿它问天气，它长不出任何东西。</p>
+
+<p style="border-left:4px solid #10b981;padding:14px 18px;background:#ecfdf5;margin:26px 0 18px;line-height:1.8;color:#2b2b2b;font-size:15px;">
+官方文档自己写了一条经验法则：如果 Hermes 连一次普通对话都跑不通，就别急着加功能。先把一次干净的对话跑通，再往上叠 gateway、定时任务、技能、语音、路由。
+</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#10b981;">1.</span> 它是自主 agent，不是 IDE 插件。放 VPS 或云上都行，通过 Telegram 之类入口远程指挥。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#10b981;">2.</span> 学习闭环由记忆、技能、用户建模三块拼成，缺一块就不成立。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#10b981;">3.</span> 装法三选一，桌面包最省事，<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0b7a5a;">curl</span> 一行最轻。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#10b981;">4.</span> 模型上下文必须 ≥ 64K，这是启动时的硬校验，本地模型记得调 ctx。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#10b981;">5.</span> 顺序别乱：先普通对话 → 再技能 → 再 gateway → 最后定时和路由。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">文档地址：<a href="https://hermes-agent.nousresearch.com/docs/" style="color:#10b981;text-decoration:none;">hermes-agent.nousresearch.com/docs</a>　仓库：<a href="https://github.com/NousResearch/hermes-agent" style="color:#10b981;text-decoration:none;">github.com/NousResearch/hermes-agent</a></p>

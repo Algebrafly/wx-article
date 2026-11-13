@@ -1,0 +1,170 @@
+<p style="text-align:center;margin:0 0 22px;"><img src="assets/concept.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">Agent 说人话，daemon 转协议，扩展动手，浏览器出结果。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">上周在 GitHub 上翻到一个仓库，腾讯开源的，叫 BrowserSkill。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">名字很朴素，我点进去看完 README，第一反应是这东西解决了一个我一直没解决的小麻烦。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">我们测试环境要登录，账号在同事手里，每次验证一个改动都得问一遍。用 Playwright 写脚本，又得把登录态单独喂给脚本。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它换了个思路。你平时用哪个浏览器，登录着哪些账号，它就直接接过去用。</p>
+
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#0052d9;line-height:1.7;margin:8px 0 22px;">它不是一个测试框架。它是一根管道，把 Agent 接到你那只已经登录的浏览器上。</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">1</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">它到底是个什么东西</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">官方那句话写得很直白。把 AI Agent 连接到 Chrome 或 Edge，用的是你当前已经登录的账号。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">拆开看是三个部件。一个 <strong style="font-weight:bold;">bsk CLI</strong>，自带一个本地守护进程。一个浏览器扩展，Manifest V3，要求 Chromium 125 以上。还有一份 skill 文件，负责教 Agent 怎么用这套命令。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">链路不复杂。Agent 在 shell 里调 bsk。bsk 通过本地 IPC 找 daemon。daemon 用 WebSocket 连扩展。扩展最后走 CDP 操作标签页。本机默认端口 52800。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">每个任务会开一个独立的 <strong style="font-weight:bold;color:#0052d9;">Agent Window</strong>，跟你的日常窗口分开。要动你已有的标签页，得先借用，任务结束再还回去。扩展里有个开关叫借用标签页前确认，默认开着。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这一点和 RPA 那种录制回放不太一样。RPA 记的是坐标和固定步骤。它每一步都先 observe，读到当前页面的文本和控件，再决定下一步点哪。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">也不要把 Agent Window 当成安全沙盒。官方写得很清楚，它共享所选 Profile 的登录态，Agent 可以用这些网站授予的权限做事。任务和 Agent 都得自己挑。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">支持哪些 Agent 也列得很全。Cursor、Claude Code、Codex、OpenClaw、CodeBuddy、WorkBuddy、Pi、Hermes Agent，只要能在 shell 里跑命令就行。DeepSeek Harness 有专门的插件，直接给一套 bsk_ 开头的原生工具。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">协议是 MIT，版权页写的是 2026 Tencent。</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">2</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">装起来就四步</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/install.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">前三步是配置，第四步是验收。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第一步，装 CLI。macOS 和 Linux 是一行脚本，Windows 走 PowerShell。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">curl -fsSL https://raw.githubusercontent.com/Tencent/BrowserSkill/main/install.sh | sh<br/>export PATH="${BSK_INSTALL_DIR:-$HOME/.local/bin}:$PATH"<br/>bsk --version</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">装到 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">~/.local/bin</span>。这里有个坑，安装脚本改不了父 shell 的 PATH。已经开着的 Agent 会一直拿着旧 PATH，找不到 bsk 就重启它，或者直接写绝对路径。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第二步，装扩展。Chrome 应用商店和 Edge 加载项都有。必须在你要用的那只浏览器里装，装完打开弹窗，确认端口和 daemon 对得上。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第三步，给 Agent 装 skill。交互式直接跑 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">bsk install-skill</span>，空格选中，回车确认。想非交互就显式指定目标。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">bsk install-skill --list --json<br/>bsk install-skill --harness cursor --json</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">已有安装默认跳过，要覆盖得显式加 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">--force</span>。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第四步，体检。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">bsk doctor</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">每一项 fail 都会给一句提示。刚装完只挂扩展连接是正常的，去浏览器里点一下就好。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#0052d9;">doctor 全绿不等于 Agent 已经看到 skill。</strong>得开一个新的 Agent 会话，确认它能发现 browser-skill。这一步很多人会漏。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">懒得自己弄也行。官方给了句话，直接发给 Agent，让它照着安装文档自己走一遍。你还是得自己装扩展，那是浏览器里的操作。</p>
+
+<p style="background:#f5f7fb;border-left:4px solid #0052d9;padding:14px 18px;margin:0 0 20px;font-size:14px;line-height:1.7;color:#3a3f4b;word-break:break-all;">按照 https://raw.githubusercontent.com/Tencent/BrowserSkill/main/AGENT_INSTALL.md 的说明，在本机安装并配置 browser-skill。</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">3</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">命令就这几条</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它的命令是动词加名词，跟你平时敲 git 差不多。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">先开会话，拿到一个 id。v0.1 里是四个小写字母。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">bsk session start --json</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">然后导航、观察、操作。observe 会返回页面文本、控件，还有一串 @eN 引用。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">bsk navigate https://example.com --session abcd<br/>bsk observe --session abcd<br/>bsk click @e3 --session abcd<br/>bsk fill @e4 --value "qa@example.com" --session abcd<br/>bsk select @e5 --value "cn" --session abcd<br/>bsk press Enter --ref @e5 --session abcd<br/>bsk screenshot --session abcd --full-page --out page.png</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">还有 hover、scroll-to、wheel、focus、blur。想开菜单先用 hover，想找元素先 scroll-to。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#0052d9;">引用会过期。</strong>页面一跳转，之前的 @eN 全部作废。要么重新 observe，要么改用 CSS 选择器，主文档里能查。iframe 和 shadow root 里的目标只能用引用。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">收尾一定要关会话。就算任务失败了也要关，借来的标签页才会归还。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">bsk session stop abcd</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">4</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">拿它跑测试，值钱的是登录态</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">自动化测试最烦的从来不是写脚本，是环境。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">内网系统要 SSO，要短信验证码，要权限审批。测试账号往往只有干净数据，复现不了用户报的那个问题。BrowserSkill 把这一段直接绕过去了，用你自己的浏览器，你自己的账号，你自己的那套权限。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">我拿它跑了五条最常见的回归用例，都是这种形状。</p>
+
+<p style="overflow-x:auto;margin:0 0 22px;"><table style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;"><tr><th style="background:#eef3fd;color:#0052d9;font-size:14px;padding:10px 12px;text-align:left;border-bottom:2px solid #0052d9;">用例</th><th style="background:#eef3fd;color:#0052d9;font-size:14px;padding:10px 12px;text-align:left;border-bottom:2px solid #0052d9;">操作</th><th style="background:#eef3fd;color:#0052d9;font-size:14px;padding:10px 12px;text-align:left;border-bottom:2px solid #0052d9;">判定信号</th></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">登录成功</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#5a6070;">填账号密码，点登录</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#0052d9;">#dashboard 可见</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">空密码</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#5a6070;">密码留空直接提交</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#0052d9;">#password-error 可见</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">下单</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#5a6070;">选商品，加购，结算</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#0052d9;">#order-success 可见</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">权限</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#5a6070;">普通账号进后台</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#0052d9;">#admin-menu 不可见</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">响应式</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#5a6070;">切到 iPhone 14 再开首页</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#0052d9;">#nav-toggle 可见</td></tr></table></p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">里面的 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">emulate --device iphone-14</span> 是它自带的设备模拟，只影响当前标签页，<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">--off</span> 恢复。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">关键在等待。不要 sleep。它有一个 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">wait-for-element</span>，四种状态，attached、detached、visible、hidden，轮询在前端扩展里做，超时返回一个 JSON。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#c0392b;">这里有个反直觉的坑。</strong>等不到元素时，它返回 satisfied 为 false，但 CLI 退出码是 0。所以不能写 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">&amp;&amp;</span> 链式判断，得去读那个 JSON 字段。</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">5</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">一条完整用例，从开窗到收尾</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/flow.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">七个动作，每一步都能单独重跑。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">把它写成一个 shell 脚本，就有了最小可用的测试框架。下面这段是我照着官方文档拼出来的，jq 用来读 JSON。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">#!/usr/bin/env bash<br/>set -uo pipefail<br/><br/>BASE="http://localhost:3000"<br/>PASS=0<br/>FAIL=0<br/><br/>new_session() {<br/>&nbsp;&nbsp;bsk session start --json | jq -er '.session_id'<br/>}<br/><br/>wait_visible() {<br/>&nbsp;&nbsp;local sid="$1" sel="$2" tmo="${3:-10s}"<br/>&nbsp;&nbsp;local out<br/>&nbsp;&nbsp;out=$(bsk wait-for-element "$sel" --state visible --timeout "$tmo" --session "$sid" --json)<br/>&nbsp;&nbsp;jq -e '.satisfied == true' &lt;&lt;&lt;"$out" &gt;/dev/null<br/>}<br/><br/>case_login() {<br/>&nbsp;&nbsp;local sid; sid=$(new_session)<br/>&nbsp;&nbsp;bsk navigate "$BASE/login" --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk observe --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk fill @e2 --value "qa@example.com" --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk fill @e3 --value "P@ssw0rd" --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk click @e4 --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;wait_visible "$sid" '#dashboard'<br/>&nbsp;&nbsp;local ok=$?<br/>&nbsp;&nbsp;bsk session stop "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;return $ok<br/>}<br/><br/>case_empty_password() {<br/>&nbsp;&nbsp;local sid; sid=$(new_session)<br/>&nbsp;&nbsp;bsk navigate "$BASE/login" --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk observe --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk fill @e2 --value "qa@example.com" --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;bsk click @e4 --session "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;wait_visible "$sid" '#password-error'<br/>&nbsp;&nbsp;local ok=$?<br/>&nbsp;&nbsp;bsk session stop "$sid" &gt;/dev/null<br/>&nbsp;&nbsp;return $ok<br/>}<br/><br/>for c in case_login case_empty_password; do<br/>&nbsp;&nbsp;if "$c"; then<br/>&nbsp;&nbsp;&nbsp;&nbsp;echo "PASS  $c"; PASS=$((PASS+1))<br/>&nbsp;&nbsp;else<br/>&nbsp;&nbsp;&nbsp;&nbsp;echo "FAIL  $c"; FAIL=$((FAIL+1))<br/>&nbsp;&nbsp;fi<br/>done<br/><br/>echo "通过 $PASS，失败 $FAIL"<br/>[ "$FAIL" -eq 0 ]</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">几个细节值得说。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">没有开 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">set -e</span>。一条用例失败不该让整个脚本停住，后面几条还得继续跑。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">每条用例自己开一个会话，跑完自己关。失败也关。这不是洁癖，借来的标签页要还，会话还有五分钟的空闲超时兜底。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">断言集中在 wait_visible 一个函数里，失败时它返回非零，用例函数把状态带出来，主循环记一笔。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#0052d9;">@e2 这些引用是示例，必须换成你自己 observe 出来的值。</strong>硬编码别人的 ref，是我踩过的第一个坑。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">再稳一点，可以在失败分支里补一张截图，作为工单附件。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">bsk screenshot --session "$sid" --out "fail-$c.png"</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">6</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">挂掉的时候，它留下什么</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这是它比普通自动化脚本更值钱的地方。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它有一个网站调试模式。在复现问题之前先开采集，然后按正常流程点，它会把操作和请求、响应正文、控制台输出、页面变化串在一条时间线上。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">你可以看某个请求的头、提交的数据、返回体、耗时和错误。也能看页面加载指标、接口耗时、有没有重复请求。缺失的数据它会标出来，不装作有。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">还可以在任务内改请求、拦请求、mock 返回、同源重放。验证完把整份证据导成 JSON，丢给同事或者另一个 Agent 都行。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">说白了，<strong style="font-weight:bold;color:#0052d9;">Playwright 给你 trace，它给你一份能直接看的现场。</strong>不用先学会怎么打开 trace viewer，也不用在几千个请求里自己找那一条。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">保留有上限。调试记录 30 天过期，最多 50 条、50 MiB。任务视频要手动开，单个 10 分钟、256 MiB，24 小时过期。敏感数据会过滤，但官方明说了不能保证完全脱敏。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">请求重放要小心。它用的是页面当前的会话，发出去会真的改服务端数据。别在生产环境随手点。</p>
+
+<p style="margin:52px 0 0;text-align:center;"><span style="display:inline-block;border:2px solid #0052d9;color:#0052d9;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #dfe8fb;">7</span></p>
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a1a1a;margin:18px 0 26px;">它和 Playwright 不是一类东西</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/compare.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">一个替你操作真实浏览器，一个替你写确定的脚本。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它不适合替代回归测试。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">每一步都要一次模型判断，慢，而且贵。你没法拿它跑几百条用例的夜间回归，也没法在 CI 集群里开几十个并发。它依赖一只真实开着、登录着的浏览器。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它适合的，是那些写脚本不划算的活。内网系统，要 SSO，要验证码，账号还在别人手里。上线前手动点一遍的验收。用户报了一个问题，你要拿他的账号复现。还有那种一次性的数据核对，进后台翻三页表格，导出成 CSV。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这些活的共同点是，环境比脚本贵。你花半天搭环境，只为了点五下。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 20px;"><strong style="font-weight:bold;color:#0052d9;">它把环境这一段的成本，压到了零。</strong>代价是每一步都慢一点、贵一点、不那么确定。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">我用下来的感受是，它不该被塞进 CI 流水线，它该被放在你手边。想到要验什么，说一句，它开个窗口就去点了。点完自己关窗，把截图和结论留下。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 20px;">测试这件事，卡住人的从来不是不会写脚本。<strong style="font-weight:bold;">卡住人的是那个要登录、要权限、数据还不干净的环境。</strong></p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">谁把环境变便宜，谁就先把测试做起来。</p>
+
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#0052d9;line-height:1.7;margin:8px 0 36px;">它没有替代测试，它只是把最烦的那一段接了过去。</p>
+
+<p style="text-align:center;margin:30px 0 12px;"><span style="display:inline-block;background:#0052d9;color:#ffffff;font-size:14px;font-weight:bold;padding:10px 22px;border-radius:8px;">BrowserSkill&nbsp;&nbsp;·&nbsp;&nbsp;Tencent&nbsp;&nbsp;·&nbsp;&nbsp;MIT</span></p>
+
+<p style="text-align:center;font-size:13px;color:#9a9a9a;line-height:1.7;margin:6px 0 24px;">概念、组件、安装步骤与命令均取自 Tencent/BrowserSkill 官方 README、AGENT_INSTALL.md、architecture.md 与 skill 目录文档。示例脚本为按官方命令组合的演示，ref 与选择器需按实际页面替换。</p>

@@ -1,0 +1,110 @@
+<p style="text-align:center;margin:0 0 14px;font-size:13px;letter-spacing:4px;color:#6b7a90;">HERMES AGENT · MESSAGING</p>
+<p style="text-align:center;font-size:26px;font-weight:bold;color:#0a1420;margin:0 0 10px;line-height:1.3;">Hermes Agent 连接企业微信 &amp; 飞书</p>
+<p style="text-align:center;font-size:15px;color:#4a5568;margin:0 0 30px;">一步一步把 Agent 挂到 IM 群组里</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">上篇讲了怎么把 Hermes CLI 跑起来、装技能、接模型。但 CLI 始终是给自己用的工具。你要是想让团队里所有人都能跟 Agent 对话，就得把它挂到企业微信或者飞书里。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">Hermes 的做法是 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0369a1;">hermes gateway</span> —— 一个常驻进程，同时监听多个 IM 平台的消息，转发给本地 Agent，再把回复推送回去。CLI 是你一个人用的终端，gateway 是团队共享的对话入口。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">好消息是，企业微信和飞书可以同时挂。坏消息是，两个平台的接入路径和权限模型差得挺远，别指望一份配置通吃。</p>
+
+<p style="text-align:center;margin:30px 0 0;"><img src="assets/flow.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;margin:10px 0 30px;">图 1 · 双平台接入流程对比</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0369a1;color:#0369a1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #38bdf8;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0369a1;margin:18px 0 26px;">企业微信：走官方 AI Bot WebSocket</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">企业微信的接入是三个平台里最干净的一条路。只有一种连接方式 —— WebSocket。你不需要公网端点，不需要 ngrok 或者内网穿透工具，跑起来就能收消息。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">创建 Bot 有两条路，<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0369a1;">hermes gateway setup</span> 交互式向导会引导你扫码或手动操作。手动路径是 <span style="color:#0369a1;">work.weixin.qq.com</span> 登录管理后台，应用管理 → 自建应用 → 新建应用时选 <span style="font-weight:bold;">AI Bot</span> 类型。这个类型很关键 —— 普通自建应用拿不到 WebSocket 接入权限。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">建好之后你会拿到两样东西：<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0369a1;">Bot ID</span> 和 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#0369a1;">Secret</span>。往环境变量里一填，gateway 就能启动了。</p>
+
+<p style="background:#0a1420;color:#cbd5e1;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">
+# ~/.hermes/.env 里加两行
+WECOM_BOT_ID=wb_xxxxxxxxxxxxxxxx<br/>
+WECOM_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
+<br/>
+# 可选：谁能直接 DM 这个 Bot，留空就是全员开放
+WECOM_ALLOWED_USERS=user1,user2,user3<br/>
+<br/>
+# 可选：Bot 上线时在哪个群里发一条问候
+WECOM_HOME_CHANNEL=oc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">企业微信还有几个独有的权限控制点值得提一下。<span style="font-weight:bold;color:#0369a1;">DM Policy</span> 决定了 Bot 能不能被私聊 —— <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#0369a1;">open</span> 是全员可 DM，<span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#0369a1;">allowlist</span> 只白名单用户，<span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#0369a1;">disabled</span> 彻底关掉私聊，<span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#0369a1;">pairing</span> 是扫码配对模式，只有完成配对的人能私聊。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">更细的控制在群里。<span style="font-weight:bold;color:#0369a1;">Per-Group Sender Allowlists</span> 可以给每个群单独设 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#0369a1;">allow_from</span>，支持通配符 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#0369a1;">*</span>。意思是，同一个 Bot 在 A 群允许所有人发言，在 B 群只允许三个人触发 —— 这种颗粒度飞书那边暂时还没做到。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #7c3aed;color:#7c3aed;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #a5b4fc;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#7c3aed;margin:18px 0 26px;">飞书 / Lark：两种连接模式二选一</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">飞书的接入比企业微信复杂一些。它有两种连接模式，你得二选一。<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#7c3aed;">websocket</span> 是 Hermes 推荐的 —— 和企业微信一样不需要公网端点。<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#7c3aed;">webhook</span> 模式需要你有一个公开可访问的 HTTP 端点，适合已经有反向代理的团队。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">创建飞书 Bot 也可以走交互式向导。手动的话去 <span style="color:#7c3aed;">open.feishu.cn</span>，创建一个「企业自建应用」，启用「机器人能力」。然后是权限 —— 这步容易漏，Hermes 文档列了五个必选 scope：</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 8px;"><span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:4px;">im:message</span> 收发消息</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 8px;"><span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:4px;">im:message:send_as_bot</span> 以 Bot 身份发言</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 8px;"><span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:4px;">im:resource</span> 下载图片和文件</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 8px;"><span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:4px;">im:chat</span> 获取会话信息</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;"><span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;background:#ede9fe;padding:2px 8px;border-radius:4px;">im:chat:readonly</span> 只读会话成员</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">权限加完还不算完。事件订阅必须勾上 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">im.message.receive_v1</span>，否则 Bot 收不到任何消息。如果你打算用交互卡片（卡片按钮、下拉菜单），还要订阅 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">card.action.trigger</span> 回调事件。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">最后是发布版本。飞书的权限变更不会立即生效，你得创建一个版本并审核通过，Bot 才能真正上线。企业微信那边没这么严格 —— 建完应用加完权限，扫码就能用。</p>
+
+<p style="background:#0a1420;color:#cbd5e1;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">
+# ~/.hermes/.env 里加四行
+FEISHU_APP_ID=cli_xxxxxxxxxxxxxxxx<br/>
+FEISHU_APP_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
+FEISHU_DOMAIN=feishu&nbsp;&nbsp;&nbsp;&nbsp;# 国内飞书填 feishu，海外 Lark 填 lark<br/>
+FEISHU_CONNECTION_MODE=websocket&nbsp;&nbsp;&nbsp;&nbsp;# 或 webhook<br/>
+<br/>
+# webhook 模式才需要这两行
+FEISHU_ENCRYPT_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx<br/>
+FEISHU_VERIFICATION_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxx
+</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">填完记得把应用重新发布一次 —— 换了 secret 或改了 domain 后，飞书的 token 缓存不会自动刷新。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #059669;color:#059669;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #34d399;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#059669;margin:18px 0 26px;">三个维度的差异</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">两边的配置都写完了。你会发现企业微信和飞书的接入逻辑差异不小，集中在三个地方：连接方式、权限事件、会话控制。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/diff.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;margin:10px 0 20px;">图 2 · 双平台差异对比</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#059669;">连接方式</span> —— 企业微信只有 WebSocket，跑起来直接连。飞书两种都给你选，推荐 WebSocket 但 Webhook 也能用，适合已有 HTTPS 入口的环境。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#059669;">权限 &amp; 事件</span> —— 企业微信建应用时选 AI Bot 类型，权限是预置的。飞书要手动加 5 个 scope + 勾 2 个事件订阅 + 发布版本。门槛更高，但也更灵活。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#059669;">会话控制</span> —— 企业微信有 Per-Group allowlist，能给每个群设不同的发言人白名单。飞书目前只有全局 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">FEISHU_ALLOWED_USERS</span>，没到群级别的颗粒度。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">另外两个小差异：海外用 Lark 的话 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">FEISHU_DOMAIN</span> 改成 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">lark</span>。企业微信原生支持 streaming 回复（消息是一段一段流式推的），飞书也有 streaming 但需要额外适配。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #d97706;color:#d97706;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #fbbf24;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#d97706;margin:18px 0 26px;">所有环境变量一次看全</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">上面分着讲的时候是分开记的。一张对照表把两边的字段列出来，方便你 copy-paste。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/env_vars.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;margin:10px 0 20px;">图 3 · 双平台 .env 字段对照</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">必选字段左边都打了勾。企业微信两个，飞书四个。可选字段按需加。飞书 Webhook 模式下才多出来 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">ENCRYPT_KEY</span> 和 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#7c3aed;">VERIFICATION_TOKEN</span> 两个签名验证字段。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0f172a;color:#0f172a;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #38bdf8;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0f172a;margin:18px 0 26px;">启动、验证、日常运行</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">配置写完，启动很简单：</p>
+
+<p style="background:#0a1420;color:#cbd5e1;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">
+hermes gateway&nbsp;&nbsp;&nbsp;&nbsp;# 前台跑，日志直接打到终端<br/>
+hermes gateway status&nbsp;&nbsp;&nbsp;&nbsp;# 查各平台连接状态
+</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/start.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;margin:10px 0 20px;">图 4 · 启动 &amp; 验证</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">第一次启动会打印各平台的连接状态。企业微信 WebSocket 连上了会有一个 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;color:#38bdf8;">connected</span> 标记，飞书 WebSocket 也是一样。如果某个平台显示 disconnected，回头检查 .env 里的 app ID 和 secret 有没有填错、权限 scope 加齐了没、事件订阅勾了没。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">跑起来之后，Bot 在群里被 @ 就会响应，私聊直接发消息也能触发。想验证最直接 —— 群里 @Bot 问「你好」，有回复就通了。没有的话看终端日志，Hermes 的 gateway 日志信息量足够定位大多数问题。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #334155;color:#334155;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #fbbf24;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#334155;margin:18px 0 26px;">小结 &amp; 上手建议</p>
+
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">给一个推荐顺序：先配企业微信，再配飞书。理由是企业微信路径更短 —— WebSocket 单连接、权限预置、不需要发布版本。配通了以后再加飞书，飞书的两种模式里先从 WebSocket 开始，Webhook 有额外的 HTTPS 端点依赖。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">安全上，<span style="font-weight:bold;color:#d97706;">DM Policy</span> 别默认留 open。生产环境建议至少设 allowlist，或者直接 disabled 让 Bot 只在群里被 @ 时响应。企业微信那边的 Per-Group allowlist 是个被低估的功能 —— 同一个 Bot 在不同群里授权不同的人触发，很实用。</p>
+<p style="font-size:16px;line-height:1.85;color:#2b2b2b;margin:0 0 18px;">Hermes gateway 是常驻进程，生产环境记得用 systemd 或 pm2 之类的进程管理器挂起来，不然终端关了 Bot 也就断了。流式回复要确认平台侧支持，企业微信开箱即用，飞书需要额外配置 streaming 选项。</p>
+
+<p style="font-size:14px;line-height:1.8;color:#64748b;margin:40px 0 0;padding-top:20px;border-top:1px solid #e2e8f0;">本文基于 Hermes Agent 官方文档整理，以下是各平台的原文链接，遇到细节问题直接看原文档：</p>
+<p style="font-size:14px;line-height:1.8;color:#64748b;margin:0 0 6px;"><a href="https://hermes-agent.nousresearch.com/docs/user-guide/messaging/wecom" style="color:#0369a1;text-decoration:none;">企业微信 WeCom 接入文档</a></p>
+<p style="font-size:14px;line-height:1.8;color:#64748b;margin:0 0 20px;"><a href="https://hermes-agent.nousresearch.com/docs/user-guide/messaging/feishu" style="color:#7c3aed;text-decoration:none;">飞书 / Lark 接入文档</a></p>

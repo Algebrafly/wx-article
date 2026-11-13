@@ -1,0 +1,170 @@
+<p style="text-align:center;margin:0 0 22px;"><img src="assets/arch.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">TypeScript 层管 Agent，Go sidecar 管数据库，两边解耦。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这个仓库我第一次看到是在 npm 搜索里。叫 omnibase-mcp，0.1.30，作者 Jeremy Max，Apache 2.0。描述很直接，Universal database MCP server for AI agents。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第一反应是，一个 MCP server 怎么敢说自己 universal？点进去看 README，第一句就是。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Give your AI agent secure access to every database. PostgreSQL, MySQL, SQLite, ClickHouse, SQL Server, and 50+ more through a single MCP server.</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">一个 server 接 50 多种数据库。这不是说它自己写了 50 套驱动。它走的是 usql 的驱动生态。usql 那个 Go 项目有 50+ 个数据库驱动，omnibase 在底下嵌了一个 Go sidecar，所有数据库的实际连接都交给 sidecar。TypeScript 层只管 MCP 协议、权限、查询分类和输出格式化。</p>
+
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a5fb4;line-height:1.7;margin:8px 0 22px;">TypeScript 层管 Agent，Go sidecar 管数据库。两层解耦，各改各的。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">01</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">它到底解决了什么问题</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">你问一个 Agent 查数据库，第一件事是什么？给它一个数据库客户端。Postgres 有 psql，MySQL 有 mysql，ClickHouse 有 clickhouse-client。每一种都不一样，每一种都要装，每一种命令行参数都不一样。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">给 Agent 一个 shell 让它自己敲？可以，但有两个大问题。第一，密码会暴露给 tool call 记录和模型上下文。第二，Agent 敲错一条 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">DELETE FROM users</span> 没有 WHERE 怎么办？</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">omnibase-mcp 把这两件事都做进了 MCP server。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#1a5fb4;">Agent 永远只看到连接名，看不到 DSN。</strong>credentials 存在 omnibase.config.yaml 里，server 读，agent 看不到。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#1a5fb4;">每条 SQL 在执行前被解析和分类。</strong>DELETE 不带 WHERE 被标成 bulk write，pg_read_file 被直接 block，多语句 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#c0392b;">SELECT 1; DROP TABLE users</span> 直接拒绝。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Server 默认是 read-only。想写必须显式在 config 里给某个连接改成 read-write 或 admin。三种权限都不是互斥开关，而是三维度，SELECT、INSERT/UPDATE/DELETE、CREATE/ALTER/DROP 各自独立。</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/perm.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">三层权限，再叠加危险函数拦截，双保险。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它给 Agent 暴露 14 个工具，分四类。发现类有 list_connections、list_tables、get_schema、search_schema、get_relationships、get_indexes。查询类是 execute_sql、explain_query、get_sample。分析类是 get_table_stats、get_distinct_values。校验类 validate_query，还有一个 query_history 看最近跑过的查询。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">工具描述里会嵌入数据库名和列名，Agent 不需要先调 get_schema 再写 SQL，直接就能看到有哪些表。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">审计日志默认开启，写在 config 文件同目录的 .omnibase/audit.log，jsonl 格式，每查一条落一条。query_history 工具让 Agent 也能看自己查过什么。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">02</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">先把 OpenCode 装起来</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">omnibase 是 MCP server，需要一个 MCP client 来接它。这里选 OpenCode。anomalyco/opencode 这个开源项目，GitHub 上有 TUI 和 headless server 两种跑法，支持几乎所有主流 provider（Zen / OpenAI / Anthropic / Google / Bedrock / 本地模型）。TUI 是它的主要形态，像一个终端版的 Cursor。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">安装方式很多，挑你习惯的。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;"># macOS<br/>brew install opencode<br/><br/># Linux / 通用（npm）<br/>npm install -g opencode-ai<br/><br/># Docker 跑一次就走<br/>docker run -it --rm ghcr.io/anomalyco/opencode</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">装完先配 provider。两种方式。OpenCode Zen 是它自家的，进 TUI 跑 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">/connect</span>，浏览器会跳 opencode.ai/auth，登录拿 API key，粘回去就行。想用自己的 provider，选它目录里的那一个，填对应的 key。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">然后进项目目录，开 TUI：</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">cd /path/to/your/project<br/>opencode<br/># TUI 里跑 /init，让它分析项目并生成 AGENTS.md</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#1a5fb4;">/init 这条命令会生成 AGENTS.md，记得 commit。</strong>它让 OpenCode 下次进这个项目时，知道你的代码组织方式和编码风格。没有这一步也能跑，但效果会差一截。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">到这里，OpenCode 本身可以跑了。现在把 omnibase-mcp 接进来。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">03</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">omnibase-mcp 三条命令装完</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">omnibase-mcp 是一个纯 Node 包，跑起来需要 Node 22 以上。npm 直接装。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;"># 全局装，CLI 在 PATH 里<br/>npm install -g omnibase-mcp<br/>omnibase-mcp --version<br/><br/># 或者 npx 直接调（不装也行）<br/>npx -y omnibase-mcp --version</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">然后在你的项目根目录初始化一份 config：</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">cd /path/to/your/project<br/>npx omnibase-mcp init<br/># 会生成一份 omnibase.config.yaml</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">打开这个 YAML，把你的数据库连接配上。一个真实例子。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">connections:<br/>&nbsp;&nbsp;app:<br/>&nbsp;&nbsp;&nbsp;&nbsp;dsn: $DATABASE_URL<br/>&nbsp;&nbsp;&nbsp;&nbsp;permission: read-write&nbsp;&nbsp;# 主应用，Agent 能写<br/>&nbsp;&nbsp;warehouse:<br/>&nbsp;&nbsp;&nbsp;&nbsp;dsn: mysql://readonly:xxxx@warehouse.db.internal:3306/warehouse<br/>&nbsp;&nbsp;&nbsp;&nbsp;permission: read-only&nbsp;&nbsp;&nbsp;&nbsp;# 数仓，只读<br/>&nbsp;&nbsp;analytics:<br/>&nbsp;&nbsp;&nbsp;&nbsp;dsn: clickhouse://analytics.db.internal:9000/analytics<br/>&nbsp;&nbsp;&nbsp;&nbsp;permission: read-only<br/><br/>audit:<br/>&nbsp;&nbsp;enabled: true<br/>&nbsp;&nbsp;path: ./.omnibase/audit.log<br/>&nbsp;&nbsp;format: jsonl</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">几点注意。DSN 以 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">$</span> 开头会从环境变量读，这是把密码写进 yaml 又想 commit 这个文件的标准做法。permission 只有三档，read-write 还是不能跑 CREATE/ALTER/DROP，admin 才能。audit.enabled 默认就是 true，可以关但不建议。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Config 查找顺序是环境变量 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">OMNIBASE_CONFIG</span>、当前目录、<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">~/.config/omnibase/config.yaml</span>。你的项目里有 omnibase.config.yaml 就够用。</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/config.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">左边 OpenCode 认，右边 omnibase 认。两边各管各的。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">04</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">把两边接起来，写一行 JSON 就好</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">OpenCode 的 MCP 配置放在项目根目录的 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">.mcp.json</span>。omnibase-mcp 走 stdio 模式，配置里只需要 command 是 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">npx</span>，args 是 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">-y omnibase-mcp</span>。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">{<br/>&nbsp;&nbsp;"mcpServers": {<br/>&nbsp;&nbsp;&nbsp;&nbsp;"omnibase": {<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"command": "npx",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"args": ["-y", "omnibase-mcp"]<br/>&nbsp;&nbsp;&nbsp;&nbsp;}<br/>&nbsp;&nbsp;}<br/>}</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">如果 omnibase-mcp 是全局装的，args 可以是空，command 直接写 omnibase-mcp 也行。两个都可以。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">保存之后重启 OpenCode。再进 TUI 时，它会去加载这个 .mcp.json，用 stdio 启动 omnibase-mcp 进程，等 omnibase 暴露自己的 14 个 MCP 工具。进程是 OpenCode 管的，退出 TUI 就会停掉。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">两个文件都就位之后，项目长这样。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">your-project/<br/>├── AGENTS.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# /init 生成的<br/>├── .mcp.json&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# OpenCode 的 MCP 配置<br/>├── omnibase.config.yaml&nbsp;&nbsp;&nbsp;# omnibase 的数据库配置<br/>├── .omnibase/<br/>│&nbsp;&nbsp;└── audit.log&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 审计日志，自动生成<br/>└── src/ ...</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">audit.log 是首次查询之后才会出现，config 里没显式开的话也会默认开。记得把它和 .omnibase/ 目录加到 .gitignore，审计日志不应该进代码库。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">omnibase-mcp 有个 CLI 可以帮你检查：</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npx omnibase-mcp status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 健康仪表盘<br/>npx omnibase-mcp tools list&nbsp;&nbsp;&nbsp;# 列出自定义工具<br/>npx omnibase-mcp upgrade&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 升到最新</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">05</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">Agent 能用它做什么</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/flow.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">两条线在第 4 步汇合，汇合之后 agent 就多了 14 个数据库工具。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">装好之后，TUI 里问它任何和数据相关的问题，它就会自己挑合适的工具去用。举一个最典型的场景。</p>
+
+<p style="background:#f5f7fb;border-left:4px solid #1a5fb4;padding:14px 18px;margin:0 0 20px;font-size:14px;line-height:1.7;color:#3a3f4b;word-break:break-all;">你：我刚接手这个项目，带我过一遍数据模型。<br/><br/>OpenCode：先看一下 omnibase 配置里有几个连接……有三个：app、warehouse、analytics。先跑 list_tables 看看每个库里有什么，然后 get_schema 和 get_relationships 把外键串起来。<br/><br/>(依次调 list_tables、get_schema、get_relationships)</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这一个问题如果自己手动干，是分别进三个不同数据库，跑三套不同语法的 information_schema 查询，然后手工拼外键关系。让 Agent 做，一条命令就出结论。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">再举一个跨库查询的场景：</p>
+
+<p style="background:#f5f7fb;border-left:4px solid #1a5fb4;padding:14px 18px;margin:0 0 20px;font-size:14px;line-height:1.7;color:#3a3f4b;word-break:break-all;">你：对比 warehouse 里的库存和 app 里的上季度订单，找出积压 SKU。<br/><br/>OpenCode：两个连接，warehouse 是 MySQL 只读，app 是 Postgres 读写。先查 warehouse 里库存 > 0 的 SKU 和数量，再查 app 里上季度每个 SKU 订了多少，然后用 SKU 做内连接。两个不同引擎不能写一条 SQL，分两次查询，结果自己拼。<br/><br/>(依次调 execute_sql warehouse、execute_sql app，然后在 agent 上下文里拼)</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Agent 不会假装可以写跨库 JOIN。它知道这是两个不同的连接，老老实实两次查询，然后自己拼结果。这恰恰是 omnibase-mcp 设计得好的地方，它没有做假，它让 Agent 也不做假。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">还有个工具 validate_query 值得单独说。写 UPDATE 或 DELETE 之前让 Agent 先跑一下它，它会告诉你影响多少行、会不会 bulk operation。Agent 拿到这个结果再决定要不要真执行。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">每次查询都会进审计日志。query_history 工具让 Agent 自己也能看自己查过什么，也方便你事后复盘。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">06</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">自定义工具，一条 pipeline 写进 YAML</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">omnibase-mcp 最让我觉得可以 commit 进团队的，其实是自定义工具。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">内置 14 个工具够用，但每个项目都有自己的常见查询。比如"查活跃用户"、"查某个用户最近 30 天的订单"，这些不是通用工具，是团队独有的业务查询。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">以前要让 Agent 做这件事，你要么把这些查询写进 prompt（prompt 一长就臭），要么让每个 Agent 写自己的 wrapper（难维护）。omnibase-mcp 的做法是写进 omnibase.config.yaml。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">tools:<br/>&nbsp;&nbsp;get_active_users:<br/>&nbsp;&nbsp;&nbsp;&nbsp;connection: app<br/>&nbsp;&nbsp;&nbsp;&nbsp;description: "Get all active users"<br/>&nbsp;&nbsp;&nbsp;&nbsp;sql: "SELECT * FROM users WHERE active = true"<br/><br/>&nbsp;&nbsp;active_user_orders:<br/>&nbsp;&nbsp;&nbsp;&nbsp;connection: app<br/>&nbsp;&nbsp;&nbsp;&nbsp;description: "Get orders for all active users"<br/>&nbsp;&nbsp;&nbsp;&nbsp;compose:<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- tool: get_active_users<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;as: users<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- sql: "SELECT * FROM orders WHERE user_id IN ({users.id})"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;as: orders</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">写完重启 OpenCode，或者等 session 刷新一下就行。Agent 就多了这两个工具，名字、描述、SQL 全部从 YAML 里灌进去的。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">compose 关键字是它的亮点。第一个工具的结果会被命名为 users，第二个 SQL 里可以引用 users.id。相当于在 YAML 里写了一条两步 pipeline，Agent 调 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1a5fb4;">active_user_orders</span> 这个自定义工具时，omnibase-mcp 自己把两步跑完，再把结果给 Agent。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这些工具的定义就在 omnibase.config.yaml 里。commit 这个文件，团队所有人拉下来，Agent 都能看到同一套工具。没有代码，没有分发，一条 YAML 搞定。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a5fb4;letter-spacing:3px;line-height:1;margin:52px 0 0;">07</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">收尾与边界</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">omnibase-mcp 给 Agent 加了一个数据库层，但它本身不是业务逻辑层。Agent 还是得自己决定查什么，omnibase 只负责把它安全地送到数据库。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">有几个边界值得提前知道。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第一，<strong style="font-weight:bold;color:#c0392b;">它没有真实的安全保障给你兜底。</strong>Agent 还是在执行 SQL，哪怕是 validate_query 拦 bulk write，它也只是报错让 Agent 别跑。Agent 要真坚持执行，你还得在 omnibase.config.yaml 里把 permission 设对。它做了双保险，但最终的决策还是你。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第二，<strong style="font-weight:bold;color:#c0392b;">审计日志是本地的，不是集中的。</strong>每个项目自己的 .omnibase/audit.log 里写 jsonl，默认保留 10000 条。要集中审计得你自己把这个文件接出去。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第三，<strong style="font-weight:bold;color:#c0392b;">它不做跨库 JOIN。</strong>这是它故意的设计，不是能力问题。agent 能拿到的每个 execute_sql 都只针对一个 connection。跨库就让 agent 先从 A 查、再从 B 查，结果自己拼。这是诚实的做法，不假装能做其实做不到的事。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第四，<strong style="font-weight:bold;color:#c0392b;">Go sidecar 如果崩了会自动重启。</strong>TypeScript 层发现 sidecar 失联会起新的，transparent 到调用方。但重启过程中那一次查询会失败，重试就好。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 20px;">最后再理一遍整个安装流程。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">### 一、装 OpenCode<br/>brew install opencode<br/>opencode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# TUI 里 /connect 配 provider，/init 进项目<br/><br/>### 二、装 omnibase-mcp<br/>npm install -g omnibase-mcp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 或者项目里 npm i -D<br/>cd /path/to/project<br/>npx omnibase-mcp init&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 生成 omnibase.config.yaml<br/>vim omnibase.config.yaml&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 配 connection、permission、audit<br/><br/>### 三、写 MCP 配置（.mcp.json）<br/>{ "mcpServers": { "omnibase": { "command": "npx", "args": ["-y", "omnibase-mcp"] } } }<br/><br/>### 四、重启 OpenCode，用起来<br/>opencode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 进 TUI 直接问<br/>omnibase-mcp status&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 检查一下健康状态</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">加起来不到十分钟，装、配、配、跑，四步。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">真正让它有用的，是 omnibase.config.yaml 这份 YAML。密码不泄露给 Agent、SQL 不过滤不让过、自定义工具一条 compose 就写进 pipeline。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Agent 能查到数据了，才能谈得上帮你做业务分析、排查问题、写报表。之前让 Agent 读数据库这件事要么裸 shell、要么各写各的 wrapper，现在有了一个统一的做法。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#1a5fb4;">安全不是加出来的，是从设计上就有的。</strong>omnibase-mcp 把这句话写在了 README 开头。我觉得它做到了。</p>
+
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1a5fb4;line-height:1.7;margin:8px 0 36px;">一个 server，多库通吃，Agent 只看到安全的那一面。</p>
+
+<p style="text-align:center;margin:30px 0 12px;"><span style="display:inline-block;background:#1a5fb4;color:#ffffff;font-size:14px;font-weight:bold;padding:10px 22px;border-radius:8px;">omnibase-mcp&nbsp;&nbsp;·&nbsp;&nbsp;Apache 2.0&nbsp;&nbsp;·&nbsp;&nbsp;npm v0.1.30</span></p>
+
+<p style="text-align:center;font-size:13px;color:#9a9a9a;line-height:1.7;margin:6px 0 24px;">omnibase 资料取自 GitHub itsJeremyMax/omnibase 仓库与 npm omnibase-mcp 包；OpenCode 安装 / 配置取自 opencode.ai/docs 与 anomalyco/opencode。示例为按官方命令组合的可运行流程，权限与连接配置需按实际数据库替换。</p>

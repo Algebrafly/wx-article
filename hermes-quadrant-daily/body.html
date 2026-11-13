@@ -1,0 +1,215 @@
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">早上九点，打开电脑，四个浏览器标签页。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">禅道里挂着三个待办，Jira 有五个，PingCode 两个，云效还有一个迭代任务。每个平台都说自己最急。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">于是先花二十分钟决定「今天先做什么」，然后才开始做。到了下午六点，再花四十分钟写日报，写完自己都有点恍惚——今天好像很忙，但说不清到底交付了什么。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">这两件事，一天吃掉一个小时。而且都不产生任何价值。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:34px 0 34px;">待办从来不缺，缺的是排序。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">这篇聊的是用 Hermes 的两个定时任务，把「排今天」和「交代今天」这两件事从脑子里搬出去。早上 08:30 一张四象限图，晚上 18:00 一份日报。两次任务互不依赖，各自独立。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #b45309;color:#b45309;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #e11d48;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#b45309;margin:18px 0 26px;">为什么是两次定时，而不是一个随叫随到的助手</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">第一反应可能是：为什么不做一个随时能问的助手，想看排期就问一句？</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">因为「随时能问」的结果是「从来不问」。人不会主动去做一件需要自己发起的事。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">定时推送的价值在于它替你建立了节奏：早上到工位，图已经在私聊里；晚上六点，日报草稿等你确认。不需要你想起来，也不需要你决定什么时候看。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">这条链路有三条硬原则，后面每一段都围绕它们展开。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#b45309;font-weight:bold;">只读</span> 从平台拉数据，绝不改任务状态。写错了没人敢用第二次。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#e11d48;font-weight:bold;">按人</span> 只拉「我负责的」，不拉项目全量。别人的待办与你无关。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">· <span style="color:#059669;font-weight:bold;">可解释</span> 每一个分数都能说清是哪几个因子算出来的，不是黑箱。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">和第 6 篇那个「按项目分组推群」的方案区别也很清楚：那个是给团队看大盘，这个是给个人看今天，再加上一份给上级看的交代。场景不同，口径也得不同。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/flow.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 1 · 一天两次：早上排兵，晚上交卷</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #e11d48;color:#e11d48;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #0369a1;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#e11d48;margin:18px 0 26px;">拉取：四个平台，各拉各的</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">四个平台没有统一接口，只能一个一个接。好在这件事做一次就能长期用。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#b45309;font-weight:bold;">禅道</span> 「我的地盘」接口，带账号 token，返回当前人负责的任务和需求。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#0369a1;font-weight:bold;">Jira</span> 用 JQL：<span style="font-family:Consolas,Menlo,monospace;font-size:13px;background:#f1f5f9;padding:1px 5px;border-radius:3px;">assignee = currentUser() AND statusCategory != done</span>，比按状态名过滤可靠得多。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#059669;font-weight:bold;">PingCode</span> 工作项列表接口，按负责人和 state_type 过滤。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">· <span style="color:#7c3aed;font-weight:bold;">阿里云效</span> OpenAPI 的「我的任务」，走 AK/SK 签名。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">接的过程中有三个坑，几乎每个人都会踩。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">一是时区。四个平台的截止时间有的带时区有的不带，统一转成 UTC 存，展示时再转回来。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">二是空截止时间。很多任务压根没填截止日期，不能当成「无限远」，要单独归到「无期限」类，否则永远排不进第一象限。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">三是重复单。同一个需求，Jira 一张、禅道一张，两边都指派给你。按「标题 + 核心场景」做指纹去重，只留一条。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/aggregate.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 2 · 四个平台归一成一张任务池</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0369a1;color:#0369a1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #4ade80;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0369a1;margin:18px 0 26px;">打分：把四套优先级换成两个坐标</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">四个平台各有一套优先级。禅道是数字 1 到 4，Jira 是 P1 到 P5，PingCode 是 1 到 4，云效直接写「高、中、低」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">先全部映射成 P0 到 P3 四档，然后才算重要度和紧急度。这一步别偷懒，直接拿平台里的优先级去排，基本没有参考价值——因为那个字段往往是创建时随手选的。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">重要度看三件事：优先级、影响面、金额量级。权重我一般这么配。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#b45309;font-weight:bold;">重要度 = 0.5 × 优先级 + 0.3 × 影响面 + 0.2 × 金额量级</span></p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">紧急度只看两件事：离截止还有几天，以及堵住了多少人。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0369a1;font-weight:bold;">紧急度 = 0.6 × 剩余天数倒数 + 0.4 × 阻塞人数</span>，已经逾期的直接封顶。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">影响面从哪来？从任务描述里抽，也可以从关联的系统监控数据里取。抽不出来就默认中等，别硬猜。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">算完每个任务都带一份解释：优先级贡献了 40 分，影响面贡献 25 分，金额贡献 12 分。产品经理看到这个，才知道为什么某件事被排到了第一。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这条解释很重要。没有它，四象限图就成了一箱玄学，第二次就没人看了。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #059669;color:#059669;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #f5b942;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#059669;margin:18px 0 26px;">四象限图：怎么画，才有人看</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">网上那些四象限模板，横竖两条线，四个格子。好看，但没用，因为里面没东西。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">有用的是把今天的任务卡片放进格子里，每张卡带上单号、优先级、一句判定理由。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">只放 8 到 12 张。超过这个数，图就变成了另一个待办列表，你还是得自己挑。少，才是这张图的价值。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">四个格子的处理方式不一样，别统一对待。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#e11d48;font-weight:bold;">重要且紧急</span> 今天必须推。图上排最前，附上「不做会怎样」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#b45309;font-weight:bold;">重要不紧急</span> 每天固定给它一个时间块，否则永远被挤掉。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#0369a1;font-weight:bold;">紧急不重要</span> 能委托就委托，不能就限时处理，别让它吃掉一上午。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">· <span style="color:#8b7a85;font-weight:bold;">不重要不紧急</span> 明确写「本周不做」，写出来比憋着好。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">推送走私聊，不发群。个人待办是私事，公开到群里只会制造表演式加班。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">消息拆成两条：一条图片卡片，一条纯文本摘要。摘要只写三行——今天最该做的三件，加一句「今天最该拒绝的一件事」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">那句话是整条推送里最容易被记住的。因为大部分人真正的问题不是不会排优先级，是不好意思说不。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/quadrant.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 3 · 每张卡带单号和判定理由，最多 12 张</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #7c3aed;color:#7c3aed;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #4ade80;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#7c3aed;margin:18px 0 26px;">日报：先定口径，再谈生成</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">日报写不好，八成不是文笔问题，是口径问题。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">什么叫「完成」？很多人默认状态改成已完成就算。结果打开一看，代码合了但没上线，上线了但没验收。这种「完成」报上去，领导一查就穿帮。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">所以口径写死在脚本里：<span style="color:#7c3aed;font-weight:bold;">完成 = 状态关闭 + 有验收记录</span>。两个条件缺一个，只能进「进行中」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">日报就四段，别多。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#059669;font-weight:bold;">今日完成</span> 交付了什么，带结果数字，不带过程</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#0369a1;font-weight:bold;">进行中</span> 到哪一步了，卡在谁那里</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">· <span style="color:#e11d48;font-weight:bold;">风险与阻塞</span> 每条必须写清「需要谁做什么」，否则不叫风险，叫抱怨</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">· <span style="color:#b45309;font-weight:bold;">明日计划</span> 三件以内，写承诺不写愿望</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">生成的时候有个死规矩：<span style="color:#e11d48;font-weight:bold;">不许编造</span>。数据来自平台状态、提交记录、工时和评论。抽不到就留空，留空比写一句「持续推进」诚实得多。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">「持续推进」这四个字是日报里的癌细胞。它看起来像在做事，实际上什么都没说。脚本里直接把这类词列进黑名单，出现了就打回重写。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">「改了支付接口」也是废话。要写成「支付接口改造完成，灰度 20%，错误率 0.3%，全量预计周四」。同样是十几个字，后者能让人做判断。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/report.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 4 · 日报四段 + 领导只看三个数</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #b45309;color:#b45309;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #e11d48;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#b45309;margin:18px 0 26px;">投递：大群广播，平台留痕</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">日报往哪发？两个地方都要发，各有各的用途。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">大群是广播。领导在群里，同事也在群里，发出去就形成了「今日已交付」的公共记录。但它有一个硬限制：企微 markdown 消息上限 4096 字节，人一多就超。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">处理办法是把汇总压成一张表，或者按项目拆成几条，再不行生成一份文件发群里。别硬塞，超长会被截断，截断的日报比没发更糟。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">平台留痕是检索。禅道写工作日志、Jira 加一条评论、PingCode 填日报字段。半年后有人问「当时这个改造是谁推的、进度怎样」，群里早就刷没了，平台上还能查到。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">发之前还要过一道脱敏。客户全名、合同金额、未公开的故障细节，该打码打码。日报是内部材料，但不是所有内部材料都能随便发群。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">给领导看的那一版，和给自己留的那一版可以不一样。领导只看三个数：今天关闭了几件、有几个风险、有几个需要他拍板。其余细节放附件。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0369a1;color:#0369a1;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #4ade80;">7</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0369a1;margin:18px 0 26px;">配置：两个 cron，三个脚本</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">整件事落到配置上很轻。Hermes 的 Gateway 每 60 秒 tick 一次，任务写在 <span style="font-family:Consolas,Menlo,monospace;font-size:13px;background:#f1f5f9;padding:1px 5px;border-radius:3px;">~/.hermes/cron/jobs.json</span> 里。</p>
+
+<p style="background:#0f1218;color:#c9d1d9;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">
+# ~/.hermes/cron/jobs.json<br/>
+{<br/>
+&nbsp;&nbsp;"jobs": [<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ "name": "morning-quadrant",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"schedule": "30 8 * * 1-5",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"script": "scripts/quadrant_brief.py",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"deliver": "wecom" },<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{ "name": "evening-report",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"schedule": "0 18 * * 1-5",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"script": "scripts/daily_report.py",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"deliver": "wecom" }<br/>
+&nbsp;&nbsp;]<br/>
+}
+</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">三个脚本各管一段：<span style="color:#0369a1;font-weight:bold;">pull</span> 负责拉取和归一，<span style="color:#b45309;font-weight:bold;">score</span> 负责打分，<span style="color:#059669;font-weight:bold;">render</span> 负责画图或拼文本。分开的好处是调试时能单独跑，出问题知道是哪一段。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">权重、卡片上限、黑名单词，全部放一个 yaml 里，改起来不用动代码。</p>
+
+<p style="background:#0f1218;color:#c9d1d9;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">
+# ~/.hermes/config/daily.yaml<br/>
+scoring:<br/>
+&nbsp;&nbsp;importance: {priority: 0.5, impact: 0.3, amount: 0.2}<br/>
+&nbsp;&nbsp;urgency:&nbsp;&nbsp;&nbsp;{days_left: 0.6, blocking: 0.4}<br/>
+&nbsp;&nbsp;overdue_cap: 100<br/>
+layout:<br/>
+&nbsp;&nbsp;max_cards: 12&nbsp;&nbsp;# 超过 12 张，图就废了<br/>
+report:<br/>
+&nbsp;&nbsp;definition: closed_and_accepted<br/>
+&nbsp;&nbsp;ban_words: [持续推进, 抓紧, 尽快, 差不多]<br/>
+&nbsp;&nbsp;max_tomorrow: 3<br/>
+</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">上线前先 dry run 两次。第一次只看数据拉得对不对，第二次看图和日报生成得对不对，都确认了再开推送。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">还有一个容易忽略的点：漏跑补采。机器重启、Gateway 掉线，任务可能没跑。补采逻辑不能依赖「上次运行时间」，要以当天 00:00 为起点重新算，这样补跑出来的结果和正常跑完全一致。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">法定节假日和调休也要处理。一个简单的节假日日历表就够，别让大年初一还给你推四象限。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #059669;color:#059669;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #f5b942;">8</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#059669;margin:18px 0 26px;">边界：别让它变成另一种形式主义</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 10px;">五条边界，写在前面省得踩坑。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#e11d48;font-weight:bold;">分数不是绩效。</span>重要度算得再准，也只是当天排序的依据。一旦被拿去排名，所有人都会开始刷优先级字段，第二周这套分数就失真了。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#e11d48;font-weight:bold;">数据质量决定上限。</span>平台里任务不填截止日期、不写描述、不改状态，再好的模型也只能给你一张漂亮但空洞的图。先治数据，再谈自动化。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#e11d48;font-weight:bold;">别把日报变成监控工具。</span>它的目的是让人交代清楚，不是让人时刻被盯着。一旦用于考核时长和在线状态，团队会在三天内学会写漂亮的假日报。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#e11d48;font-weight:bold;">AI 归因要有边界。</span>它能从提交和工单里串出「这件事大概做到哪一步」，但串错的时候你要能一眼看出来。每条结论后面挂来源链接，是最后的保险。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#e11d48;font-weight:bold;">领导要的是判断，不是数据。</span>三个数字后面如果没跟一句「我建议怎么处理」，这份日报就只是把平台数据搬了个家。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">说到底，这两个定时任务省下的不是一个小时，是每天早上那段「不知道从哪开始」的焦虑，和每天晚上那段「今天好像什么都没干」的自我怀疑。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">把排序和交代交出去之后，剩下的时间才真的属于工作本身——想方案、找人聊、把一件难的事往前推一点。</p>
+
+<p style="text-align:center;font-size:15px;font-weight:bold;color:#b45309;line-height:1.8;margin:30px 0 10px;">机器负责让你知道该做什么，你负责决定做到什么程度。</p>

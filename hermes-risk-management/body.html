@@ -1,0 +1,207 @@
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">上一篇讲沟通时提到，风险登记册里的「触发条件」本质上就是一套升级路径。这一篇把这句话补完。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">先说一个很普遍的现象：几乎每个项目都有风险登记册，而且几乎每个项目的登记册都死在同一时刻——立项评审之后。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">立项时集中写三十条，评审会上逐条过一遍，然后归档。三个月后再打开，还是那三十条，一条没关、一条没更新，概率和影响都没动过。它已经不是管理工具了，是一份为了通过评审而写的材料。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">这类登记册通常有三个共同特征：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">一是一次性填写</span>。风险清单在项目启动会上一次性生成，之后没有任何新增机制。可风险恰恰是在执行过程中才长出来的。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">二是只有描述，没有触发条件</span>。「上游接口可能延期」这句话无法被监控，因为没有人能回答「延期到什么程度才算发生了」。它只能在事后被引用，不能在事前被预警。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#b91c1c;font-weight:bold;">三是责任人填的是项目经理</span>。所有风险都归一个人，等于没有责任人。风险应对需要具体的人去做具体的事，而这件事通常不在项目经理手上。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:34px 0 34px;">一条不能被监控的风险，不是风险，是一句感慨。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是系列的第八篇。结构照旧：七个过程的输入输出、两个重点（分级与量化、监督）、五份模板、归档方式、四类群消息、SKILL 目录，最后是边界。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">风险管理的特殊之处在于：它是十大领域中唯一一个<span style="color:#a16207;font-weight:bold;">「做得再好也不会有产出」的领域</span>。没有风险发生，你无法证明是管理有效还是运气好。正因为如此，它最容易被敷衍，也最值得用工程手段做扎实。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #b91c1c;color:#b91c1c;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #a16207;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#b91c1c;margin:18px 0 26px;">七个过程：只有后两个是持续的</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">PMBOK 里风险管理有七个过程，是十大领域中数量最多的一类。但真正需要每天做的，只有最后两个。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#7e22ce;font-weight:bold;">规划风险管理</span> 定制度。风险的口径、分级标准、评审节奏，一次定清楚。输出风险管理计划。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">识别风险</span> 找全。头脑风暴、核对单、访谈、假设条件分析、SWOT。输出风险登记册和风险报告。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#a16207;font-weight:bold;">定性分析</span> 排序。用概率影响矩阵打分，得出高、中高、中低、低四档。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">定量分析</span> 算钱。对排名靠前的几条做模拟、决策树、敏感性分析，算出对工期和成本的具体影响。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">规划风险应对</span> 定招。规避、转移、减轻、接受、上报，五选一，每条风险都要有具体动作、责任人和截止日。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be185d;font-weight:bold;">实施风险应对</span> 落地。这一步是执行，不是分析——把应对计划变成真实的任务和变更。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#15803d;font-weight:bold;">监督风险</span> 验效。看已识别风险的状态变化、看新风险是否出现、看储备消耗得怎么样。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/pipeline.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 1 · 七个过程的 ITTO：前五个是「一次性的」，后两个是「持续的」</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这个划分很重要，因为它决定了 AI 应该介入哪里。<span style="color:#b91c1c;font-weight:bold;">前五个过程 AI 帮不上太多忙</span>——识别风险靠的是行业经验和现场感，打分靠的是判断，规划应对靠的是取舍，这些都不适合交给模型。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">但第六和第七个过程恰恰是<span style="color:#15803d;font-weight:bold;">重复、琐碎、必须按时执行</span>的：每天检查触发条件、每周更新敞口、每月算储备消耗。这些事人做不好，不是因为难，是因为烦。而「烦」正是自动化的最佳入口。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #c2410c;color:#c2410c;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #15803d;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#c2410c;margin:18px 0 26px;">重点一：分级，是为了决定「谁管、多久看」</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第一个重点。概率影响矩阵几乎所有团队都在用，但大部分用法是错的——错在把打分数当成了目的。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/matrix.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 2 · 5×5 概率影响矩阵，以及四个等级对应的管理动作</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">分级的唯一价值，是让「谁管、多久看一次、什么时候必须触发」这三件事有据可依。如果打完分之后没有产生这三件事，那这张矩阵就只是给评审会看的一张彩图。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">红色（15-25）</span>：项目经理和发起人共同关注，每周评审，必须有应对计划和触发条件。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">橙色（9-12）</span>：项目经理负责，每两周评审，应对计划可以合并处理。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#a16207;font-weight:bold;">黄色（4-8）</span>：模块负责人关注，每月评审，只需登记和观察。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#15803d;font-weight:bold;">绿色（1-3）</span>：不指定专人，登记即可，季度扫一遍。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">三个常见错误</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">刻度不统一</span>：有人写「概率 3」，有人写「中等」，有人写「40%」。最后没法比较。概率必须统一成 0-1 的小数或百分比，影响必须统一成金额或天数，否则这个问题永远吵不完。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">只看乘积不看紧迫性</span>：影响 5、概率 1 的风险，和影响 1、概率 5 的风险，乘积可能一样，但处理方式完全不同。前者要提前买保险或做预案，后者要立刻投入资源压概率。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#c2410c;font-weight:bold;">分完级没有动作</span>：这是最普遍的。登记册上标了一片红色，但没有一条有触发条件和应对计划，下次评审还是原样。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">AI 在这一步能做的，是<span style="color:#a16207;font-weight:bold;">一致性检查</span>：同一类风险在不同项目里的打分是否可比、影响的口径是否统一、有没有「高概率 + 高影响」却没人负责的漏网条目。这些检查人做起来枯燥，机器做起来稳定。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #a16207;color:#a16207;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #1d4ed8;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#a16207;margin:18px 0 26px;">重点二：量化，只算最要命的那几条</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第二个重点。定量分析听起来很高级——蒙特卡洛模拟、决策树、期望货币价值，但真正常用的只有一种图：龙卷风图。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/tornado.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 3 · 敏感性分析（龙卷风图）与威胁的五种应对策略</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">它的好处是极其直观：每个不确定变量对工期的影响区间画成一条横条，按长度排序。谁最长，谁就是需要优先投入资源的那个。上面这张图里，上游接口交付和需求变更频次两条就占了总方差的一半以上——那么资源就该压在这两件事上，而不是平均分摊到十几条风险。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这里有一条实用原则：<span style="color:#1d4ed8;font-weight:bold;">定量分析只做前三条</span>。全量跑蒙特卡洛成本很高，收益却很低，因为排在后面的风险本来就只需要观察。把有限的分析精力压在最要命的三条上，性价比最高。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">EMV 与储备</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">期望货币价值 <code style="background:#eef2f7;color:#b91c1c;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">EMV = 概率 × 金额</code>，用来比较不同应对方案的性价比。如果一条风险的 EMV 是 8 万，而规避它的成本是 12 万，那理性选择是接受并留储备，而不是不惜代价地消除它。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">储备要分两种，这是经常被混淆的地方：<span style="color:#15803d;font-weight:bold;">应急储备</span>应对「已知的未知」——已经识别出来但不确定会不会发生的风险，它包含在成本基准之内，项目经理可以动用；<span style="color:#b91c1c;font-weight:bold;">管理储备</span>应对「未知的未知」——完全没识别到的情况，它在成本基准之外，通常由高层掌握。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">储备不是拍脑袋的 10%。它的计算依据应该来自定量分析：把所有高等级风险的 EMV 加起来，就是应急储备的合理下限。低于这个数字，说明你在赌运气。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">AI 在这里最实用的一个能力，是<span style="color:#a16207;font-weight:bold;">把主观概率换成基准率</span>。项目经理填「这个风险概率 40%」时，通常没有依据；但如果从历史项目库里回算出「过去 12 个项目的接口延期概率是 68%」，这个数字立刻就比直觉可靠。基准率不解决个体的特殊性，但它能修正系统性的乐观偏差。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #15803d;color:#15803d;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #b91c1c;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#15803d;margin:18px 0 26px;">监督风险：看敞口往哪走，不看条数</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第七个过程，也是整套里最容易被跳过的一步。「本期关闭 12 条风险」这样的汇报听起来很漂亮，但它可能是最坏的消息——如果关掉的是十二条小事，留下的全是硬骨头。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/monitor.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 4 · 未关闭风险按等级堆叠：总量在降，但红色在涨</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这张图要看的不是柱子高度，是<span style="color:#b91c1c;font-weight:bold;">颜色比例的变化</span>。总量从 15 降到 16 再回落，红色段却从 2 涨到 4——这意味着团队在处理容易的部分，而真正致命的风险在积累。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">所以监督风险要看四个数，而且都不是简单的计数：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">风险敞口值</span>：所有未关闭风险的概率乘影响加权求和。它比「还有几条风险」有用得多，因为它反映的是总量级而不是个数。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">触发命中率</span>：登记的触发条件里，真正发生过几次。这个数字低，不一定是好事——很可能是触发条件写得根本不可能会发生，那等于没有监控。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#a16207;font-weight:bold;">应对完成率</span>：到期的应对动作完成比例。这一项最能反映「风险管理是不是真的在跑」——计划写得再全，动作没做完都是空的。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#1d4ed8;font-weight:bold;">储备消耗率</span>：应急储备已经用了多少。超过 70% 就该报警，因为剩下 30% 要撑到项目结束，而这个阶段往往是最容易出事的阶段。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">触发条件必须是机器可判定的</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是整套设计里最关键的一条。所谓「触发条件」，不能是一句描述，必须拆成三样东西：<span style="color:#15803d;font-weight:bold;">监控哪个指标、满足什么条件算触发、多久检查一次</span>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">「上游接口可能延期」不是触发条件；「接口就绪日期晚于 11 月 20 日，每天检查一次」才是。前者只能在复盘时说，后者可以在当天早上九点自动预警。这个差别，就是「登记册会死」和「登记册活着」的差别。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1d4ed8;color:#1d4ed8;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #a16207;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#1d4ed8;margin:18px 0 26px;">五份模板与组织过程资产归档</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">七个过程收敛成五份文档。核心只有一份：风险登记册，其余四份都是围绕它展开的。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">统一 front-matter</p>
+
+<p style="background:#141518;color:#d3d7de;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">---<br/>&nbsp;doc_id: RM-PAY-2026-014<br/>&nbsp;doc_type: risk_register<br/>&nbsp;project: payment-v2<br/>&nbsp;version: 3.1.0<br/>&nbsp;status: baselined<br/>&nbsp;baseline_at: 2026-11-03<br/>&nbsp;owner: wangjing<br/>&nbsp;review_cadence: weekly<br/>&nbsp;exposure_total: 42.5<br/>&nbsp;related: [CM-PAY-2026-011]<br/>&nbsp;supersedes: RM-PAY-2026-013<br/>---</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">doc_type</code> 五个取值：risk_plan、risk_register、risk_report、risk_response、risk_review。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">风险登记册：一条完整记录长什么样</p>
+
+<p style="background:#141518;color:#d3d7de;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">- id: R-014<br/>&nbsp;&nbsp;title: 上游接口交付延期<br/>&nbsp;&nbsp;category: 外部依赖<br/>&nbsp;&nbsp;probability: 0.75<br/>&nbsp;&nbsp;impact_days: 8<br/>&nbsp;&nbsp;impact_cost: 120000<br/>&nbsp;&nbsp;score: 18&nbsp;&nbsp;level: high<br/>&nbsp;&nbsp;trigger:<br/>&nbsp;&nbsp;&nbsp;&nbsp;metric: upstream_api_ready<br/>&nbsp;&nbsp;&nbsp;&nbsp;condition: "late_than(2026-11-20)"<br/>&nbsp;&nbsp;&nbsp;&nbsp;check: daily<br/>&nbsp;&nbsp;response:<br/>&nbsp;&nbsp;&nbsp;&nbsp;strategy: mitigate<br/>&nbsp;&nbsp;&nbsp;&nbsp;actions:<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- owner: lijing<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;due: 2026-11-14<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text: 切换备用供应商<br/>&nbsp;&nbsp;owner: wangjing<br/>&nbsp;&nbsp;status: open<br/>&nbsp;&nbsp;last_review: 2026-11-03</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">重点看 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">trigger</code> 这一段：<span style="color:#15803d;font-weight:bold;">metric 是个能被查询的指标，condition 是个能被求值的表达式，check 是检查频率</span>。三样齐全，脚本就能每天跑一遍，命中就发预警。少一样，这条风险就退化成一句描述。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">还要注意 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">impact_days</code> 和 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">impact_cost</code> 是两个字段，不是一个模糊的「影响程度 4 级」。只有拆成具体数值，才能加总成敞口值，才能和储备做比较。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">其余四份各自的分工</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#7e22ce;font-weight:bold;">风险管理计划</span>：定口径。概率怎么打分、影响怎么折算、分级阈值、评审节奏。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">风险报告</span>：给外部看的摘要。整体敞口、top 5 风险、储备状态。它和登记册的区别是：登记册是内部工作台，报告是对外仪表盘。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">应对计划</span>：一条风险一个动作清单。策略、动作、责任人、截止日、验证方式。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#15803d;font-weight:bold;">风险复盘</span>：阶段收尾时做。哪些命中、哪些失效、哪些漏判。这份最有价值，因为它是唯一能把「基准率」积累下来的文档。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">归档：进项目知识库</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">路径固定为 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">/kb/{project}/risk/{doc_type}/{doc_id}-v{version}.md</code>，三态流转：draft → baselined → superseded，永不物理删除。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">风险资产的复用价值在所有领域里最高。因为<span style="color:#a16207;font-weight:bold;">风险是最容易跨项目重复出现的</span>：上游延期、需求变更、人员流动、第三方资质，这几个主题在任何项目里都会重演。积累三年之后，新项目立项时可以直接调出「同类业务的 top 10 风险及其实测发生概率」，这份东西比任何模板都值钱。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #7e22ce;color:#7e22ce;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #15803d;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#7e22ce;margin:18px 0 26px;">四类群消息与 SKILL 结构</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">风险消息最忌讳两件事：一是天天发，把所有风险都往群里倒，两周之后没人看；二是从不发，等到出事了才说「我早就写在登记册里了」。前者是噪音，后者是甩锅。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/message.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 5 · 四类风险消息：预警、升级、复盘、台账</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">风险预警</span>：触发条件命中时发。这是唯一需要「当天」发的类型。写清哪条风险触发了、概率和影响怎么变了、已经启动了哪些动作。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">风险升级</span>：超出项目权限时发。写清已尝试过什么、不处理会怎样。升级不是抱怨，是移交决策权，所以必须给出明确的请求。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">风险复盘</span>：阶段收尾时发。命中几条、失效几条、漏判几条。这份消息的价值不在本期，在下一期的基准率。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#15803d;font-weight:bold;">登记册更新</span>：每周一固定发。新增、降级、关闭各几条，最高风险是哪条，敞口值环比变化。这条最枯燥，但它是唯一能证明「登记册还活着」的消息。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">格式仍然是四行：<span style="color:#b91c1c;font-weight:bold;">判断 / 依据 / 影响 / 要谁在什么时候做什么</span>。前几篇都是这个结构，原因很简单——它能被手机锁屏界面读完。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">SKILL 目录：一个 Skill，四个脚本</p>
+
+<p style="background:#141518;color:#d3d7de;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">skills/risk-manager/<br/>&nbsp;SKILL.md<br/>&nbsp;references/<br/>&nbsp;&nbsp;&nbsp;itto.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 七过程输入技术输出<br/>&nbsp;&nbsp;&nbsp;templates.md&nbsp;&nbsp;&nbsp;# 五份文档模板<br/>&nbsp;&nbsp;&nbsp;scoring.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 概率影响口径与阈值<br/>&nbsp;&nbsp;&nbsp;messages.md&nbsp;&nbsp;&nbsp;# 四类群消息格式<br/>&nbsp;&nbsp;&nbsp;strategies.md&nbsp;# 五种应对策略清单<br/>&nbsp;scripts/<br/>&nbsp;&nbsp;&nbsp;register.py&nbsp;&nbsp;&nbsp;# 登记册录入与校验<br/>&nbsp;&nbsp;&nbsp;trigger.py&nbsp;&nbsp;&nbsp;&nbsp;# 每日检查触发条件<br/>&nbsp;&nbsp;&nbsp;exposure.py&nbsp;&nbsp;&nbsp;# 计算敞口与储备消耗<br/>&nbsp;&nbsp;&nbsp;notify.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 企微 / 飞书推送</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">四个脚本对应四个动作：<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">register</code> 录入并校验（触发条件三要素不齐就拒绝入库）、<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">trigger</code> 每天扫一遍指标、<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">exposure</code> 每周算敞口、<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">notify</code> 按四类格式推送。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">register.py</code> 里的校验规则是整套的守门人：一条风险如果没有 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">trigger.metric</code>、没有具体责任人、没有截止日，<span style="color:#b91c1c;font-weight:bold;">直接拒绝写入</span>。宁可录不进去，也不要录进去一条死数据。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #b91c1c;color:#b91c1c;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #1d4ed8;">7</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#b91c1c;margin:18px 0 26px;">边界：这套系统最容易被滥用的地方</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">第一，不预测未来，只管理不确定性</span>。风险登记册不是预言书，它记的是「可能发生什么、发生了我怎么应对」，不是「一定会发生什么」。把 AI 的判断当成预测，是最危险的误用。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">第二，概率是主观的，必须带依据</span>。0.75 这个数字背后如果什么都没有，它就只是一个情绪。每条概率后面都应该有来源：历史基准率、专家判断、还是模拟结果。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">第三，风险不是免责声明</span>。登记册里写过，不等于责任已尽。写下风险而不采取行动，比没写更糟——它证明你知道，但没做。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b91c1c;font-weight:bold;">第四，风险和问题要分开</span>。已经发生的是问题，进问题日志；还没发生的是风险，进风险登记册。混在一起会导致两个列表都失效：风险列表变成事故记录，问题列表变成抱怨清单。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#b91c1c;font-weight:bold;">第五，数量不能当 KPI</span>。一旦「识别风险数量」成为考核指标，登记册会在一周内膨胀到两百条，其中一百九十八条是「需求可能变更」这种废话。质量永远比数量重要。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:40px 0 34px;">风险管理的成果，是那些没有发生的坏事。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这句话听起来像自我安慰，但它其实是这个领域最难的地方：<span style="color:#15803d;font-weight:bold;">你做得越好，越显得无事可做</span>。一个把所有风险都提前化解的项目经理，在复盘会上讲不出什么故事；而一个一路救火最后勉强上线的，反而有满满一页战绩。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这也是为什么这套设计里反复强调「可观测」：触发条件命中了几次、敞口值往哪走、储备消耗了多少。这些数字不是为了考核，是为了让「没有发生」这件事，也能被看见。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">下一篇拆<strong>采购管理</strong>。它会用上这一篇的定量工具——自制或外购分析本质是一次 EMV 比较，而合同类型的选择（固定价、成本补偿、工料）直接决定了风险在甲乙双方之间怎么分配。</p>
+
+<p style="font-size:14px;color:#7c8798;line-height:1.85;margin:36px 0 8px;padding-top:20px;border-top:1px solid #e6eaf0;">系列进度：框架 → 范围 → 进度 → 成本 → 质量 → 资源 → 沟通 → 风险（本篇）→ 采购 → 干系人 → 整合。</p>
+
+<p style="font-size:14px;color:#7c8798;line-height:1.85;margin:0 0 8px;">Skill Accumulation 提示：这是本系列第八篇同结构推文。八篇下来，骨架已经完全可复用——唯一在变的是领域名、两个重点和配色。下一次，只需要输入这三样。</p>

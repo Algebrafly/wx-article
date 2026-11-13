@@ -2,37 +2,136 @@
 
 微信公众号推文仓库。文章默认面向「想把 AI / Hermes Agent 用进业务和团队日常」的读者。
 
-## 目录
+## 主题分组
 
-仓库里的每一个子目录就是一篇完整的推文，目录名即 slug。
+**Hermes Agent 主线** — 围绕 Hermes Agent（Nous Research 出品）在实际业务中的各种用法。
 
 ```
-hermes-alert-kb/         生产告警 + 企业知识库方案
-hermes-bi-dashboard/    只读账号自动生成 BI 看板
-hermes-project-management/  Hermes AI PM 十大领域框架
-hermes-scope-management/   范围管理（需求跟踪 / 基线判定）
-hermes-schedule-management/ 进度管理（PERT / CPM / 关键路径漂移）
-hermes-cost-management/     成本管理（估算三档精度 / EVM 挣值）
-hermes-quality-management/  质量管理（COQ 四象限 / 1-10-100 法则 / 控制图）
-hermes-ai-native-sdlc/     AI native SDLC 多智能体接力 + 四道人工闸口
-deer-flow-super-agent/     读 DeerFlow 2.0：什么是 super agent harness
-dsh-superagent/            读 dsh-superagent：DeepSeek 给你的一份域模型
+hermes-alert-kb/              生产告警 + 企业知识库方案
+hermes-bi-dashboard/         只读账号自动生成 BI 看板
+hermes-messaging-setup/      群消息推送基础设施
+hermes-issue-auto-bridge/    业务群 → 工单自动建单桥
+hermes-code-to-knowledge/     代码库转知识库
+hermes-enterprise-knowledge/  企业知识库搭建
+hermes-cron-daily-brief/     每日定时简报
+hermes-quadrant-daily/       每日四象限巡检
+hermes-auto-testing/         自动化测试 agent
+hermes-prd-prototype/        PRD → 原型
+hermes-a2a-sdlc/             A2A + SDLC 多 agent 协作
+hermes-agent/                Hermes Agent 产品介绍
 ```
 
-### 每篇一句摘要
+**Hermes 项目管理十大领域系列** — 把 PMBOK 十大领域逐个拆开，结合 Hermes 落地。
 
-| 目录 | 开头一句 |
-|---|---|
-| `hermes-alert-kb` | 凌晨三点半手机震了，企微群 99+ 未读，核心错误只有一条：支付服务 PostgreSQL 行锁超时。 |
-| `hermes-bi-dashboard` | 早上九点有人问昨天 GMV，数据组回复：需求已收到，排期到周四。 |
-| `hermes-project-management` | 项目管理有十大领域。再加上把它们串起来的整合管理。 |
-| `hermes-scope-management` | 项目复盘常听到一句话：范围一直没控制住。 |
-| `hermes-schedule-management` | 进度管理最容易被误解成一件事：画甘特图。第三天开始就没人看了。 |
-| `hermes-cost-management` | 成本管理最常见的误解：把它当成记账。 |
-| `hermes-quality-management` | 质量管理最容易被简化成一句话：测完了，没大问题。 |
-| `hermes-ai-native-sdlc` | 瓶颈已经不是 agent 会不会写代码了，是它写完之后人要挨个 review、点合并、补上下文。 |
-| `deer-flow-super-agent` | DeerFlow 2.0 登上 GitHub Trending 第一。它把自己重新定义成了一个 super agent harness。 |
-| `dsh-superagent` | DeepSeek 把 dsh-superagent-prototype 开源了，12 天 22k star。它给你的是一份设计。 |
+```
+hermes-project-management/   十大领域整体框架
+hermes-scope-management/     范围管理
+hermes-schedule-management/  进度管理（PERT / CPM / 关键路径漂移）
+hermes-cost-management/      成本管理（估算精度 / EVM 挣值）
+hermes-quality-management/   质量管理（COQ / 1-10-100 / 控制图）
+hermes-resource-management/  资源管理
+hermes-risk-management/      风险管理
+hermes-communication-management/ 沟通管理
+hermes-procurement-management/ 采购管理
+hermes-stakeholder-management/ 干系人管理
+hermes-integration-management/ 整合管理（九篇串起来）
+```
+
+**AI native SDLC / Super Agent 架构** — 多 agent 协作、harness、域模型。
+
+```
+hermes-ai-native-sdlc/       AI native SDLC 多智能体接力 + 四道人工闸口
+ai-native-sdlc/              AI native SDLC 控制面与数据面
+deer-flow-super-agent/       读 DeerFlow 2.0：什么是 super agent harness
+dsh-superagent/              读 dsh-superagent：DeepSeek 给你的一份域模型
+affaan-ecc/                  ECC（Everything Claude Code）agent harness OS
+ruvnet-ruflo/               Ruflo：模型 + 基座解耦
+mcp-a2a-e2e/                 MCP + A2A + 单 agent E2E
+mcp-evolution-2026/          MCP 从 Function Calling 到通用连接层
+omnibase-mcp-opencode/       TypeScript agent + Go sidecar 解耦
+openspec-intro/              OpenSpec：变更五步走，规格自动更新
+superpowers-intro/           Superpowers：从一句话到一次合并的七道关
+superpowers-vs-openspec/     Superpowers vs OpenSpec 对比
+```
+
+**Agent 工程实践** — testing、browser、security、plugin。
+
+```
+playwright-e2e/              Playwright E2E Browser/Context/Page 三层
+browserskill-testing/        Browser Skill 端到端测试
+cloudflare-security-audit/   Cloudflare 六阶段安全审计流水线
+comet-plugin-intro/          Comet plugin 介绍
+artisan-sdlc-console/        内部原型：SDLC 控制台
+```
+
+**Prompt 与模型能力** — 阿里云百炼三篇姊妹篇 + gpt-image-2。
+
+```
+aliyun-prompt-guide/         百炼文生文 Prompt 指南（2026-10 更新）
+aliyun-text-to-image-prompt/ 百炼文生图 Prompt 指南
+aliyun-text-to-video-prompt/ 百炼文生视频 Prompt 指南
+gpt-image-2-prompts/         OpenAI gpt-image-2：长提示词跟随 + 图中文字
+token-saving-tools/          省 token 的实用工具
+```
+
+**外部产品与仓库导读**
+
+```
+mattpocock-agent-skills/     读 mattpocock/skills 仓库
+tencent-weknora/             腾讯 WeKnora 企业知识库
+```
+
+### 按目录名字母序（便于 git grep）
+
+```
+affaan-ecc/
+ai-native-sdlc/
+aliyun-prompt-guide/
+aliyun-text-to-image-prompt/
+aliyun-text-to-video-prompt/
+artisan-sdlc-console/
+browserskill-testing/
+cloudflare-security-audit/
+comet-plugin-intro/
+deer-flow-super-agent/
+dsh-superagent/
+gpt-image-2-prompts/
+hermes-a2a-sdlc/
+hermes-agent/
+hermes-ai-native-sdlc/
+hermes-alert-kb/
+hermes-auto-testing/
+hermes-bi-dashboard/
+hermes-code-to-knowledge/
+hermes-communication-management/
+hermes-cost-management/
+hermes-cron-daily-brief/
+hermes-enterprise-knowledge/
+hermes-integration-management/
+hermes-issue-auto-bridge/
+hermes-messaging-setup/
+hermes-prd-prototype/
+hermes-procurement-management/
+hermes-project-management/
+hermes-quadrant-daily/
+hermes-quality-management/
+hermes-resource-management/
+hermes-risk-management/
+hermes-schedule-management/
+hermes-scope-management/
+hermes-stakeholder-management/
+mattpocock-agent-skills/
+mcp-a2a-e2e/
+mcp-evolution-2026/
+omnibase-mcp-opencode/
+openspec-intro/
+playwright-e2e/
+ruvnet-ruflo/
+superpowers-intro/
+superpowers-vs-openspec/
+tencent-weknora/
+token-saving-tools/
+```
 
 ## 每篇目录结构
 
@@ -44,6 +143,8 @@ dsh-superagent/            读 dsh-superagent：DeepSeek 给你的一份域模�
 ├── publish.py          可选——微信公众号 API 直发脚本
 └── assets/             配图 PNG（dpi=160，圆角卡片，零 emoji / monospace 中文）
 ```
+
+少数目录还带 `playbook.pdf` / `playbook.txt`（如 `ai-native-sdlc/`），是正文附赠的配套材料。
 
 ## 本地预览
 

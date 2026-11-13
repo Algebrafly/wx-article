@@ -1,0 +1,88 @@
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">阿里云百炼视频生成 Prompt 指南在 10 月 10 号和文生文、文生图两篇同一天更新。三篇是姊妹篇，按「文字 → 图像 → 视频」的顺序来。视频这篇最复杂——万相 2.6、2.7、3.0 三代模型公式不一样。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它的核心思路和文生图类似：先给基础公式，再给进阶扩展。但视频和图像有一个本质差别——图像只要描述静态内容，视频必须描述**运动**。万相 3.0+ 还多了声音。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#a855f7;letter-spacing:3px;line-height:1;margin:52px 0 0;">01</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">视频 prompt 比图像 prompt 多了什么</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">文生图基础公式是「主体 + 场景 + 风格」。到了视频，第三条换成**运动**。万相文档里写得很直白：视频 prompt 的核心是「描述视频中所包含的画面内容和**运动过程**」。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">运动这个词比风格难写。它可以是静止、小幅度摆动、大幅度奔跑、局部表情变化、或者一个完整的动作链（打碎玻璃、捡起钥匙、递给别人）。幅度、速率、作用效果都要写清楚。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">更重要的是：视频不止一种输入。万相支持文生视频、图生视频（首帧或首尾帧）、参考生视频（上传参考视频/图片）。每种输入的公式都不一样。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/modes.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">三种输入模式，三种公式。参考生视频最灵活，能用 图n / 视频n 指代。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#a855f7;letter-spacing:3px;line-height:1;margin:52px 0 0;">02</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">三条核心公式</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">先看三条最核心的公式，覆盖了最常见的两种输入。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/formulas.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">基础打底，进阶往上盖，图生视频单独来一条。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#a855f7;">基础公式：主体 + 场景 + 运动。</span>和文生图对比，就是把「风格」换成了「运动」。这是视频 prompt 和图像 prompt 最本质的结构差别。「一只毛茸茸的小奶猫 + 下雪的院子 + 缓慢地摇尾巴」——够了，模型能出东西。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#a855f7;">进阶公式</span>在基础之上再盖两层：每一项都加描述（主体描述、场景描述、运动描述），然后再加上**美学控制**（光源、景别、视角、镜头、运镜）和**风格化**（赛博朋克、勾线插画、废土风格）。和文生图的进阶公式比，多了运镜，少了氛围词——视频本身就在制造情绪。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#a855f7;">图生视频公式：运动 + 运镜。</span>图已经定了主体、场景和风格，不需要再写一遍。prompt 只需要告诉模型：图里的东西怎么动（奔跑、打招呼），镜头动不动（固定镜头 / 推进 / 左移）。这是一个大幅简化的公式。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">三条公式的关系和文生图那篇一样：基础打底，进阶往上盖，特殊输入有专用公式。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#a855f7;letter-spacing:3px;line-height:1;margin:52px 0 0;">03</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">多镜头：万相 2.7 / 2.6 的大杀器</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">万相 2.7 和 2.6 能生成**多镜头连贯叙事视频**。这意味着你可以写一个有起承转合的短剧 prompt，模型会自动按镜头切。这比单镜头出一个 10 秒片段强太多。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">多镜头公式的结构是：**总体描述 + 镜头序号 + 时间戳 + 分镜内容**。先给模型一个全局故事框架，再按镜头编号、时间戳、镜头内容一步步写。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/multi_shot.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">总体描述加在最前面，每个镜头带时间戳，像写分镜脚本。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">时间戳的写法是「镜头1[0-3秒]」「镜头2[4-6秒]」，模型会按时间戳分配镜头长度。总体描述要简要——第三人称视角、什么故事、什么情绪——让模型知道全局走向。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">另外要注意：万相 2.7 不再支持用 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#a855f7;">shot_type</span> 指定单/多镜头了，由模型自己判断。想一镜到底，中文写「生成单镜头」，英文写「Generate single shot.」。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#a855f7;letter-spacing:3px;line-height:1;margin:52px 0 0;">04</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">声音：万相 3.0+ 的新能力</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">万相 3.0、2.7、2.6、2.5 有原生音频能力。声音公式就是在基础公式后面加一项：主体 + 场景 + 运动 + **声音描述**。声音描述分三类：人声、音效、BGM。</p>
+
+<p style="text-align:center;margin:24px 0 8px;"><img src="assets/sound.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">三类声音，描述维度不一样。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#a855f7;">人声</span>最复杂，六个维度：说话内容 + 情绪 + 语调 + 语速 + 音色 + 口音。比如「一个男人讲脱口秀，他说道："好好学习，天天向上"，语气轻松，语速适中，声音清亮，美式英文」——这是完整的人声描述。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 10px;"><span style="font-weight:bold;color:#a855f7;">音效</span>三个维度：音源材质 + 行为 + 环境音。玻璃小球掉在木质地面发出"砰"的声音，室内安静环境——材质和环境一起写，音效会很准。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-weight:bold;color:#a855f7;">BGM</span>最简单，背景音乐 + 风格。不写的话模型会根据题材自己发挥；不想有背景音乐，明确写「无背景音乐」。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#a855f7;letter-spacing:3px;line-height:1;margin:52px 0 0;">05</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">优化技巧 + 示例</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">文生视频 prompt 也可以自动优化。API 调用时开 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#a855f7;">prompt_extend</span> 参数（和文生文、文生图一样），简短宽泛的 prompt 效果提升最好。或者把公式喂给大语言模型（文档给的例子是 qwen3.6-plus），让它按公式帮你扩写。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">一个按声音公式写的完整 prompt：</p>
+
+<p style="background:#1a0f2e;color:#f0ecff;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">主体：一只毛茸茸的小奶猫
+场景：下雪的院子
+运动：缓慢地摇尾巴，突然跳起来抓雪花
+声音描述：
+  人声：无
+  音效：软乎乎的爪垫踩雪的声音，雪花飘落的细碎声
+  BGM：温馨舒缓的钢琴旋律，轻雪风格</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">如果是图生视频，主体和场景已经在图里了，prompt 可以简化成：</p>
+
+<p style="background:#1a0f2e;color:#f0ecff;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">运动：缓慢地摇尾巴，突然跳起来抓雪花
+运镜：固定镜头
+声音描述：音效 + 温馨钢琴 BGM（同上）</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">参考生视频还有一个约定：用「图1」「视频1」指代参考文件，中英文都写（「Image 1」「Video 1」）。只有一个参考时可以简化成「参考图片」。</p>
+
+<p style="border-left:4px solid #a855f7;padding:14px 18px;background:#f5f3ff;margin:26px 0 18px;line-height:1.8;color:#2b2b2b;font-size:15px;">
+视频 prompt = 图像 prompt + 运动 + （可选）声音。图像定风格，运动定生命，声音定氛围。
+</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">原文参考：<a href="https://help.aliyun.com/zh/model-studio/text-to-video-prompt" style="color:#a855f7;text-decoration:none;">help.aliyun.com/zh/model-studio/text-to-video-prompt</a></p>

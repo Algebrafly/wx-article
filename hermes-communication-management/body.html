@@ -1,0 +1,177 @@
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">上一篇讲资源，我说沟通管理的难点是「压根不知道该算什么」。这一篇把这句话展开。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">质量看缺陷率，成本看 CPI，进度看关键路径漂移，资源看负荷——这些指标都有一个共同点：<span style="color:#1d4ed8;font-weight:bold;">它们来自系统日志，可以被查询、被复算、被质疑</span>。沟通没有这样的东西。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">你发了一条消息，系统告诉你「发送成功」。这句话只证明了服务器收到了，不证明任何人看过，更不证明有人会因此改变动作。而项目里所有的返工、扯皮、验收纠纷，几乎都能追溯到某个「我以为他知道」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">所以沟通管理是十大领域里唯一一个「过程全部正确、结果可能为零」的领域。你把沟通管理计划写得很漂亮，该开的会都开了，该发的周报都发了，项目照样可以因为一句没人接住的话而延期。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:34px 0 34px;">沟通的完成标志不在发送端，在接收端的动作上。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是系列的第七篇。结构不变：三个过程的输入输出、两个重点（沟通漏斗与需求矩阵、有效性监督）、五份模板、归档方式、四种群消息、SKILL 目录，最后是边界。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">先亮个底：<span style="color:#a16207;font-weight:bold;">这一篇没有任何一个指标是「准确」的</span>。到达率、已读率、闭环率都是代理指标，它们证明不了「对方真的懂了」。但比起完全不看，它们至少能让「没人接住」这件事提前两周暴露出来。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #c2410c;color:#c2410c;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #0f766e;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#c2410c;margin:18px 0 26px;">三个过程：发出去、流转开、验闭环</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">PMBOK 里沟通管理只有三个过程，是十大领域中过程最少的一类。少不代表简单，代表它把复杂度藏在了「人」这一侧。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">规划沟通管理</span> 定规则。谁需要什么信息、多久一次、走哪个渠道、谁负责维护。输出沟通管理计划，顺带更新干系人参与计划。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">管理沟通</span> 促流转。按计划把信息发出去，同时收集反馈、处理意外。输出项目沟通记录——它记录的是「发了什么、在哪个渠道、谁在场」，不是「对方懂了什么」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0f766e;font-weight:bold;">监督沟通</span> 验闭环。看干系人是否真的获得了他需要的信息、参与度是否达到预期。输出工作绩效信息和变更请求。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/pipeline.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 1 · 三个过程的 ITTO：前两个在「发」，第三个才在「验」</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">现实里，绝大多数团队只做前两个。第三个过程几乎没人做，原因很实在：<span style="color:#0f766e;font-weight:bold;">它需要收集「对方怎么想」的证据，而这个证据不在任何系统里</span>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">传统做法是发问卷、做访谈，成本高、频率低、还容易失真。AI 在这里能做的，是把散落在群聊、邮件、会议纪要、任务系统里的<span style="color:#1d4ed8;font-weight:bold;">响应行为</span>聚合成可观测信号：谁在会后 24 小时内改了自己的任务状态、谁在群里对某条风险一直没回应、谁的提问总是绕开同一个话题。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这些信号单独看都不算什么，攒起来就能回答「监督沟通」真正要问的那个问题：这条信息，到底有没有落地。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1d4ed8;color:#1d4ed8;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #c2410c;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#1d4ed8;margin:18px 0 26px;">重点一：一次交底的五层衰减</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第一个重点。理解沟通为什么难，只需要看一条信息从「我想说」到「他真的做了」中间发生了什么。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">最反直觉的地方在于：<span style="color:#c2410c;font-weight:bold;">每一层的衰减都是「合理的」</span>。编码时要精简，所以删掉了背景；渠道要合并，所以埋进了三十条消息里；解码时要用自己的经验补全，所以补出了偏差。没有任何一环是恶意的，但五层叠加，剩下的已经不是同一个需求。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/model.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 2 · 沟通漏斗与三层验证：送达、理解、行动</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">既然每一层都会失真，唯一的办法是<span style="color:#1d4ed8;font-weight:bold;">在关键节点上做验证，而不是在起点反复强调</span>。三层验证，每层都要有一个可观测的信号：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">送达</span>：他能不能在正确的渠道找到这条信息。信号是发送成功、入群、已读回执。这一层最容易自动化，也最没有价值——它只排除了「没发」这一种情况。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#a16207;font-weight:bold;">理解</span>：他复述出来的，是不是你想说的那件事。信号是复述、提问、引用原文。这一层需要人参与，所以只能对关键结论做，不能对所有信息做。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0f766e;font-weight:bold;">行动</span>：他的下一步动作有没有因此改变。信号是任务改期、工单关闭、状态转移。这一层最硬，也最难伪造。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">有个很实用的话术替换：<span style="color:#0f766e;font-weight:bold;">不要问「你收到没」，要问「你打算怎么做」</span>。前一个问题对方只需要回答「收到」，后一个问题必须暴露理解。这一个字的差别，能省掉后面一半的返工。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">AI 在这里的角色是「守门人」而不是「喇叭」：它不负责把消息发出去，它负责盯着那些<span style="color:#c2410c;font-weight:bold;">发出去 48 小时仍无动作</span>的关键消息，然后提醒你——这条可能需要换个方式再说一遍。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #a16207;color:#a16207;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #0f766e;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#a16207;margin:18px 0 26px;">沟通需求矩阵：谁要什么，多久一次</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">计划要落到一张表上，否则就只是文档。这张表的每一行必须能回答五个问题：谁、要什么信息、多久一次、走哪个渠道、谁负责维护。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/matrix.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 3 · 沟通需求矩阵：五种干系人，五种信息粒度</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">三条规则值得写进计划里：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">第一，同一件事只有一个权威来源</span>。里程碑日期在三个地方出现，就一定会出现三个版本。所有渠道里指定一个为准，其余只能引用、不能定义。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">第二，频率不是越高越好</span>。每天同步一次进度给高管，两周之后他会开始不看。信息密度和注意力是稀缺资源，宁可少而准。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0f766e;font-weight:bold;">第三，每个渠道指定一个维护人</span>。没有维护人的群，三个月后一定会变成通知垃圾桶，然后所有人开始另建一个新群。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">AI 在这张表上的用处，是<span style="color:#a16207;font-weight:bold;">反推而不是填写</span>。从历史会议纪要、群里 @ 记录、邮件往来里，可以统计出「某位高管过去三个月实际关心的是排期和风险，从不看技术细节」——这个结论比任何访谈都准，因为它是从行为里长出来的。拿它去校准矩阵，比拍脑袋填表靠谱得多。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0f766e;color:#0f766e;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #1d4ed8;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0f766e;margin:18px 0 26px;">重点二：有效性监督，只看四个数</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第二个重点。监督沟通不能靠感觉，但也不能搞一堆指标。四个数足够。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">先看一个前提：同一条信息，换个渠道，留存率能差六倍。一周后还能准确复述的人占比，会议是 72%，一对一 68%，而群消息只有 18%。所以「我已经发群里了」这句话，从统计上看只完成了不到五分之一的沟通。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/metric.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 4 · 渠道留存率差异与四个监督指标</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">到达率</span>：发送失败、漏发、发错群的比例。这是纯技术指标，最容易做到 95% 以上，也最容易让人产生错觉。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#a16207;font-weight:bold;">已读率</span>：关键人到底看没看到。注意只统计「关键人」，把所有人群发一遍算 100% 已读，毫无意义。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">响应时效</span>：关键决策从提出到有人回应的平均时长。超过 24 小时就该预警，因为这意味着决策链条已经卡住了。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0f766e;font-weight:bold;">闭环率</span>：有结论、有责任人、有日期的消息占比。这四个数里它最能说明问题——一条消息发了、读了、回了，但没形成任何带责任人的结论，等于零。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">闭环率的定义要写死在规则里：<span style="color:#0f766e;font-weight:bold;">三要素缺一不可——明确的结论、具体的人、具体的日期</span>。「大家看下」「后续跟进」「尽快处理」这类表述一律不计入闭环，它们只是把不确定性往后推了一步。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这正好是 AI 最擅长的一段：从聊天记录里抽取「这句话有没有责任人和日期」，判断起来不难，人做起来很烦，机器做起来很快。每天扫一遍，把不闭环的消息挑出来，比事后复盘有效得多。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #c2410c;color:#c2410c;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #a16207;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#c2410c;margin:18px 0 26px;">五份模板与组织过程资产归档</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">三个过程产出五份文档。比其它领域少，但每一份的使用频率都更高。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">统一 front-matter</p>
+
+<p style="background:#0d171a;color:#cfe0e4;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">---<br/>&nbsp;doc_id: CM-PAY-2026-011<br/>&nbsp;doc_type: comm_record<br/>&nbsp;project: payment-v2<br/>&nbsp;version: 1.2.0<br/>&nbsp;status: baselined<br/>&nbsp;baseline_at: 2026-11-06<br/>&nbsp;owner: wangjing<br/>&nbsp;channel: wecom-group<br/>&nbsp;audience: [pmo, dev, qa]<br/>&nbsp;related: [CM-PAY-2026-009]<br/>&nbsp;supersedes: CM-PAY-2026-010<br/>---</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">doc_type</code> 五个取值：communication_plan、comm_requirement、comm_record、comm_metric、escalation。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">会议纪要：结构化才可检索</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">纪要最大的浪费，是写成一篇散文。三个月后想查「灰度比例是谁定的」，翻半小时也翻不到。结构化之后，它才变成资产而不是记录。</p>
+
+<p style="background:#0d171a;color:#cfe0e4;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">meeting: 灰度方案评审<br/>&nbsp;date: 2026-11-06&nbsp;&nbsp;duration: 45m<br/>&nbsp;attendees: [pm, wang, zhao, qa-lead]<br/>&nbsp;absent_but_needed: [ops-lead]<br/>&nbsp;decisions:<br/>&nbsp;&nbsp;- id: D-01&nbsp;&nbsp;text: 采用缓存方案<br/>&nbsp;&nbsp;&nbsp;&nbsp;owner: wang&nbsp;&nbsp;due: 2026-11-13<br/>&nbsp;&nbsp;- id: D-02&nbsp;&nbsp;text: 灰度 5% 提到 20%<br/>&nbsp;&nbsp;&nbsp;&nbsp;owner: zhao&nbsp;&nbsp;due: 2026-11-15<br/>&nbsp;objections:<br/>&nbsp;&nbsp;- by: qa-lead&nbsp;&nbsp;text: 缺少回滚演练<br/>&nbsp;&nbsp;&nbsp;&nbsp;resolved: false<br/>&nbsp;closing_window: 2026-11-06T22:00</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">几个字段值得注意：<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">absent_but_needed</code> 记录该来没来的人——他们是最容易漏掉结论的一群人；<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">objections</code> 记录未解决的异议——散会后没人提，不等于同意；<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">closing_window</code> 给一个明确的异议截止时间，逾期视为认可。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">升级路径：写清「什么情况找谁」</p>
+
+<p style="background:#0d171a;color:#cfe0e4;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">levels:<br/>&nbsp;&nbsp;- l1:&nbsp;&nbsp;owner: tech-lead&nbsp;&nbsp;sla: 4h<br/>&nbsp;&nbsp;&nbsp;&nbsp;trigger: 技术方案分歧<br/>&nbsp;&nbsp;- l2:&nbsp;&nbsp;owner: pm&nbsp;&nbsp;sla: 24h<br/>&nbsp;&nbsp;&nbsp;&nbsp;trigger: 跨团队依赖 / 排期冲突<br/>&nbsp;&nbsp;- l3:&nbsp;&nbsp;owner: sponsor&nbsp;&nbsp;sla: 48h<br/>&nbsp;&nbsp;&nbsp;&nbsp;trigger: 范围或预算变更<br/>&nbsp;auto_escalate:<br/>&nbsp;&nbsp;- condition: 同一问题 l1 超时 2 次<br/>&nbsp;&nbsp;&nbsp;&nbsp;action: 升 l2 并在群内公示</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这份文件的价值在于<span style="color:#c2410c;font-weight:bold;">把「找领导」从情绪行为变成流程行为</span>。没有升级路径时，升级等于告状；有了路径，升级只是按约定走下一步，谁都不会觉得被针对。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">归档：进项目知识库</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">路径固定为 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">/kb/{project}/communication/{doc_type}/{doc_id}-v{version}.md</code>，三态流转：draft → baselined → superseded，同样永不物理删除。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">沟通记录的复用价值比较特殊：它不只服务本项目。<span style="color:#a16207;font-weight:bold;">跨项目检索历史会议纪要，能直接看出某类决策通常卡在哪一层</span>——比如「所有涉及运维的决策平均延迟 5 天」，这种规律只有在记录被结构化、被归档之后才看得出来。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1d4ed8;color:#1d4ed8;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #0f766e;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#1d4ed8;margin:18px 0 26px;">四种群消息与 SKILL 结构</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">前面几篇的群消息是按「领域事件」分类的，沟通这篇不一样——它的分类依据是<span style="color:#1d4ed8;font-weight:bold;">「要对方做什么」</span>。因为没有请求的消息不叫沟通，叫广播。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/message.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 5 · 四类沟通消息：决策请求、状态同步、风险升级、会议结论</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#c2410c;font-weight:bold;">决策请求</span>：需要拍板时发。必须给出选项、各自代价、截止时间。只描述问题不给选项，等于把活推回给领导。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">状态同步</span>：定期发。完成多少、延期几项、影响是什么。带一个 KB 链接，让想看细节的人自己去查，而不是在群里刷长文。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#a16207;font-weight:bold;">风险升级</span>：触发条件时发。写清已经尝试过什么、不处理会怎样、需要谁在什么时候给什么。这条最容易写成抱怨，所以要严格按「已尝试 / 若不处理 / 请谁做什么」三段来。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0f766e;font-weight:bold;">会议结论</span>：会后 30 分钟内发。结论、责任人、日期，加一个异议窗口。超过窗口就视为认可，这条规则能消灭掉一半的「我当时不知道」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">格式上仍然沿用前几篇的铁律：<span style="color:#1d4ed8;font-weight:bold;">四行以内、一句判断、@ 到具体的人、不 @ 全员</span>。企微 markdown 消息体上限 4096 字节，模板要短到不会超。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">SKILL 目录：三个动作，两个脚本</p>
+
+<p style="background:#0d171a;color:#cfe0e4;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">skills/communication-manager/<br/>&nbsp;SKILL.md<br/>&nbsp;references/<br/>&nbsp;&nbsp;&nbsp;itto.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 三过程输入技术输出<br/>&nbsp;&nbsp;&nbsp;templates.md&nbsp;&nbsp;&nbsp;# 五份文档模板<br/>&nbsp;&nbsp;&nbsp;metrics.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 四指标定义与口径<br/>&nbsp;&nbsp;&nbsp;messages.md&nbsp;&nbsp;&nbsp;# 四类群消息格式<br/>&nbsp;&nbsp;&nbsp;escalation.md&nbsp;# 三级升级路径<br/>&nbsp;scripts/<br/>&nbsp;&nbsp;&nbsp;plan.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 生成沟通需求矩阵<br/>&nbsp;&nbsp;&nbsp;trace.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 抽取消息的闭环三要素<br/>&nbsp;&nbsp;&nbsp;metric.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 计算四指标与渠道留存<br/>&nbsp;&nbsp;&nbsp;notify.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 企微 / 飞书推送</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">三个动作对应三个过程：<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">plan</code> 出矩阵、<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">manage</code> 记沟通、<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">monitor</code> 验闭环。中间那个 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">trace.py</code> 是核心：它每天扫一遍项目相关的群和邮件，抽取每条消息的「结论 / 责任人 / 日期」，缺一项就标红。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这个脚本不难写，但效果很直接：<span style="color:#0f766e;font-weight:bold;">项目里 60% 的「我以为他说了」会被提前发现</span>，因为大部分没闭环的消息，在发出那一刻就能被识别出来。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #be185d;color:#be185d;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #a16207;">7</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#be185d;margin:18px 0 26px;">边界：这套系统最容易被误读的地方</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be185d;font-weight:bold;">第一，已读不等于理解</span>。已读回执只能证明眼睛扫过，不能证明脑子转过。所有指标里它的可信度最低，所以要配合「复述」一起用。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be185d;font-weight:bold;">第二，响应慢不等于不重视</span>。同一个人可能在三个项目里被 @，也可能是他根本没被授权拍板。归因之前先看上下文，不要用响应时长做任何针对个人的判断。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be185d;font-weight:bold;">第三，不能替代面对面</span>。坏消息、冲突、绩效反馈这几类沟通，AI 只能协助准备材料，不能代发。文字会把语气放大成立场，一句本来中性的批评，在群里读起来就是指责。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be185d;font-weight:bold;">第四，不自动 @ 全员</span>。全员 @ 是最贵的一次打扰，用一次就会贬值一次。升级消息只 @ 到具体的责任人，找不到责任人说明流程本身有问题。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#be185d;font-weight:bold;">第五，不伪造「已对齐」</span>。AI 可以帮你整理「谁说了什么」，不能替你确认「大家都同意了」。任何「已达成一致」的结论，必须有一个真人点过头。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:40px 0 34px;">沟通管理真正管理的不是信息，是「分歧有没有被放到台面上」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">回头看这一篇的所有设计，从三层验证到闭环三要素，从升级路径到异议窗口，本质上都在做同一件事：<span style="color:#0f766e;font-weight:bold;">把「没说出口的东西」变成必须说出口的东西</span>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">一个项目最危险的时刻，往往不是有人在会上吵架，而是所有人都点头、散会后各自按自己的理解去做。前者至少暴露了分歧，后者把分歧藏进了代码里。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">下一篇拆解<strong>风险管理</strong>。它会用到这一篇的两个成果：风险里的「触发条件」本质上是一套升级路径，而风险登记册能不能被真的用起来，取决于沟通闭环做得怎么样。这两个领域天然咬合。</p>
+
+<p style="font-size:14px;color:#7c8798;line-height:1.85;margin:36px 0 8px;padding-top:20px;border-top:1px solid #e6eaf0;">系列进度：框架 → 范围 → 进度 → 成本 → 质量 → 资源 → 沟通（本篇）→ 风险 → 采购 → 干系人 → 整合。</p>
+
+<p style="font-size:14px;color:#7c8798;line-height:1.85;margin:0 0 8px;">Skill Accumulation 提示：这是本系列第七篇同结构推文。七次之后，骨架已经完全稳定——ITTO 三过程、两个重点、五到六份模板、归档规则、四类群消息、SKILL 目录、边界声明。是时候把它固化成一个 skill 了。</p>

@@ -1,0 +1,176 @@
+<p style="text-align:center;margin:0 0 22px;"><img src="assets/model.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">Browser 管进程，Context 管身份，Page 管标签页。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">我第一次认真写 Playwright，是因为一个登录框。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">项目里原本有一堆 Selenium 脚本，每条用例开头都在等元素。等三秒，等五秒，CI 上还是隔三差五红一次。点开日志，永远是那句元素不可点击。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">换成 Playwright 之后，最直观的变化不是快。是那些 sleep 全没了，脚本反而更稳。</p>
+
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1e8237;line-height:1.7;margin:8px 0 22px;">它没有把 Selenium 换个语法。它把等待、隔离、并行这三件事，做进了框架本身。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">01</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">它到底是个什么东西</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">微软开源，Apache 2.0。官方对它的定义很干脆，一个面向现代 Web 应用的端到端测试框架。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">注意是框架，不是一个只能点按钮的库。测试运行器、断言、隔离、并行、工具链，全都打包在里面。装一次，什么都不用再拼。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它驱动三个浏览器内核，Chromium、Firefox、WebKit。WebKit 就是 Safari 那套内核，所以你能在 Linux 的 CI 上跑 Safari 的兼容性用例。Windows、Linux、macOS 都支持，有头无头都行，还带 Chrome for Android 和 Mobile Safari 的移动端模拟。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">官方文档现在的版本是 1.64，npm 上最新是 1.64.1。除了 TypeScript 和 JavaScript，Python、Java、.NET 也都有各自的版本，API 形状基本一致。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">真正需要先搞懂的，是它那三层模型。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#1e8237;">Browser 是一个进程。Context 是一份独立的身份。Page 是一个标签页。</strong></p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">Context 这一层是它和 Selenium 最大的差别。每个 Context 等价于一个全新的无痕窗口，cookie、localStorage、sessionStorage 全是干净的。Playwright 给每条用例自动建一个 Context，跑完就丢。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">所以一条用例失败了，不会把脏状态留给下一条。你不用在 afterEach 里写一堆清理代码，也不用担心用例的执行顺序。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">想在一条用例里测多用户？自己建两个 Context 就行。一个管理员，一个普通用户，互不干扰。聊天、审批、协同编辑这类场景，只能这么测。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">02</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">装它，两条命令</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/scaffold.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">初始化会问几个问题，然后直接把骨架铺好。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">在一个空目录里跑下面这条。npm、yarn、pnpm 都可以。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npm init playwright@latest</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它会依次问你四件事。用 TypeScript 还是 JavaScript，用例目录叫什么，要不要顺手加一个 GitHub Actions 工作流，要不要现在就把浏览器下下来。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">默认值是 TypeScript、tests、加工作流、下载浏览器。四个都回车也行。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">跑完会多出四个东西。一个 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">playwright.config.ts</span>，一个 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">tests</span> 目录，里面躺着一条示例用例，还有 package.json 和锁文件。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">命令可以重复跑，它不会覆盖你已有的用例。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">如果是在已有项目里加，换这一条更干净。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npm install -D @playwright/test<br/>npx playwright install --with-deps</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">第二条命令别省。它不只是下三个内核的二进制，还会装系统依赖。Linux CI 上缺的那几个库，它一次性补齐。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">环境要求不算苛刻。Node 22、24、26 都行。macOS 14 以上，Ubuntu 22.04、24.04、26.04，Windows 11 或 Server 2019 以上。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">升级的时候，版本号和浏览器要一起动。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npm install -D @playwright/test@latest<br/>npx playwright install --with-deps</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">03</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">一条用例长什么样</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/anatomy.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">定位、动作、等待、断言，四件事各归各位。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">拿一个最普通的登录流程举例。两条用例，一条正向，一条校验空密码。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">import { test, expect } from '@playwright/test';<br/><br/>test.describe('登录', () =&gt; {<br/>&nbsp;&nbsp;test.beforeEach(async ({ page }) =&gt; {<br/>&nbsp;&nbsp;&nbsp;&nbsp;await page.goto('/login');<br/>&nbsp;&nbsp;});<br/><br/>&nbsp;&nbsp;test('账号密码正确时进入工作台', async ({ page }) =&gt; {<br/>&nbsp;&nbsp;&nbsp;&nbsp;await page.getByLabel('邮箱').fill('qa@example.com');<br/>&nbsp;&nbsp;&nbsp;&nbsp;await page.getByLabel('密码').fill('P@ssw0rd');<br/>&nbsp;&nbsp;&nbsp;&nbsp;await page.getByRole('button', { name: '登录' }).click();<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;await expect(page).toHaveURL(/\/dashboard/);<br/>&nbsp;&nbsp;&nbsp;&nbsp;await expect(page.getByRole('heading', { name: '工作台' })).toBeVisible();<br/>&nbsp;&nbsp;});<br/><br/>&nbsp;&nbsp;test('密码为空时给出提示', async ({ page }) =&gt; {<br/>&nbsp;&nbsp;&nbsp;&nbsp;await page.getByLabel('邮箱').fill('qa@example.com');<br/>&nbsp;&nbsp;&nbsp;&nbsp;await page.getByRole('button', { name: '登录' }).click();<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;await expect(page.getByText('请输入密码')).toBeVisible();<br/>&nbsp;&nbsp;&nbsp;&nbsp;await expect(page).toHaveURL(/\/login/);<br/>&nbsp;&nbsp;});<br/>});</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">这里没有一个 wait。goto 完直接填，填完直接点，点完直接断言。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">因为每个动作之前，Playwright 会先检查元素可不可操作。可见、稳定、能接收事件、没有被遮挡，四项都过了才真的点下去。这是自动等待，不是隐藏的 sleep。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">断言也一样。expect 带 await 的那批匹配器，会在五秒内反复重试，直到条件成立或者超时。它描述的是一种最终会成立的期望，不是某一毫秒的快照。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">定位器的写法值得单独说一句。<strong style="font-weight:bold;color:#1e8237;">优先用用户看得见的东西定位。</strong>角色、标签、文本、test id，这四个顺序，比 CSS 选择器稳得多。改一次样式不会让用例红，改一次文案才会。这个失败是有意义的。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">还有一个默认行为会让人先懵一下。定位器是严格模式，一个 locator 匹配到多个元素时直接报错，不会默默点第一个。逼你把定位写准，其实是好事。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">04</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">从一条用例到一套用例</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">一条用例能跑，不等于一套用例能维护。真正决定后面好不好过的，是配置文件。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">import { defineConfig, devices } from '@playwright/test';<br/><br/>export default defineConfig({<br/>&nbsp;&nbsp;testDir: 'tests',<br/>&nbsp;&nbsp;fullyParallel: true,<br/>&nbsp;&nbsp;forbidOnly: !!process.env.CI,<br/>&nbsp;&nbsp;retries: process.env.CI ? 2 : 0,<br/>&nbsp;&nbsp;workers: process.env.CI ? '50%' : undefined,<br/>&nbsp;&nbsp;reporter: process.env.CI ? [['html', { open: 'never' }], ['github']] : 'list',<br/>&nbsp;&nbsp;use: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;baseURL: 'http://localhost:3000',<br/>&nbsp;&nbsp;&nbsp;&nbsp;trace: 'on-first-retry',<br/>&nbsp;&nbsp;&nbsp;&nbsp;screenshot: 'only-on-failure',<br/>&nbsp;&nbsp;},<br/>&nbsp;&nbsp;projects: [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: 'firefox', use: { ...devices['Desktop Firefox'] } },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: 'webkit', use: { ...devices['Desktop Safari'] } },<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ name: 'mobile', use: { ...devices['iPhone 14'] } },<br/>&nbsp;&nbsp;],<br/>&nbsp;&nbsp;webServer: {<br/>&nbsp;&nbsp;&nbsp;&nbsp;command: 'npm run start',<br/>&nbsp;&nbsp;&nbsp;&nbsp;url: 'http://localhost:3000',<br/>&nbsp;&nbsp;&nbsp;&nbsp;reuseExistingServer: !process.env.CI,<br/>&nbsp;&nbsp;},<br/>});</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">几行值得解释。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">baseURL</span> 配好之后，用例里写 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">page.goto('/login')</span> 就行。切测试环境只改一个地方。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">projects</span> 决定跑哪几个内核。默认三个全跑，本地开发嫌慢就加 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">--project=chromium</span>。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">webServer</span> 会在测试前把本地服务拉起来，跑完关掉。CI 里不用你手写一段等待端口就绪的脚本。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">retries</span> 在 CI 上给两次机会。<span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">forbidOnly</span> 防止有人把 test.only 推上去，导致整条流水线只跑一条用例还显示绿色。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">登录态是另一个绕不开的问题。官方推荐的做法是单独建一个 setup 项目，登录一次，把状态存成文件。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">import { test as setup, expect } from '@playwright/test';<br/><br/>setup('登录一次，复用状态', async ({ page }) =&gt; {<br/>&nbsp;&nbsp;await page.goto('/login');<br/>&nbsp;&nbsp;await page.getByLabel('邮箱').fill(process.env.QA_USER ?? '');<br/>&nbsp;&nbsp;await page.getByLabel('密码').fill(process.env.QA_PASS ?? '');<br/>&nbsp;&nbsp;await page.getByRole('button', { name: '登录' }).click();<br/><br/>&nbsp;&nbsp;await expect(page.getByRole('heading', { name: '工作台' })).toBeVisible();<br/>&nbsp;&nbsp;await page.context().storageState({ path: 'playwright/.auth/qa.json' });<br/>});</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">然后在其他项目里 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">use.storageState</span> 指过去，再声明依赖这个 setup 项目。每条用例都从已登录状态开始，登录动作只跑一次。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">那个 json 里是真实的 cookie 和请求头。<strong style="font-weight:bold;color:#b45309;">一定要加进 gitignore。</strong>官方文档专门用红框写了这件事。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">用例再多一些，就该抽 Page Object 了。把页面上的操作收成一个类，用例里只写业务动作。这一步没有强制规范，但少了它，半年后没人愿意改那堆选择器。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">05</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">怎么跑，怎么分</p>
+
+<p style="text-align:center;margin:22px 0 8px;"><img src="assets/pipeline.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#9a9a9a;margin:0 0 30px;line-height:1.6;">写、跑、分、看，四个阶段各有对应的命令。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">默认无头、默认并行、默认跑配置里所有项目。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npx playwright test</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">常用参数不多，一张表能装下。</p>
+
+<p style="overflow-x:auto;margin:0 0 22px;"><table style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;"><tr><th style="background:#eef8ef;color:#1e8237;font-size:14px;padding:10px 12px;text-align:left;border-bottom:2px solid #2ead33;">想做的事</th><th style="background:#eef8ef;color:#1e8237;font-size:14px;padding:10px 12px;text-align:left;border-bottom:2px solid #2ead33;">命令</th></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">看见浏览器</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">--headed</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">边跑边看每一步</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">--ui</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">只跑一个内核</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">--project=webkit</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">只跑一个文件</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">tests/login.spec.ts</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">按标题筛</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">-g "登录"</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">只重跑上次失败的</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">--last-failed</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">单步调试</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">--debug</td></tr><tr><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#2b2b2b;">拆片并行</td><td style="padding:10px 12px;border-bottom:1px solid #eceef2;color:#1e8237;font-family:Consolas,Menlo,monospace;font-size:13px;">--shard=1/4</td></tr></table></p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">--ui</span> 是本地开发最该用的一个。左边是文件树，中间是步骤时间线，右边是页面快照。点某一步，页面就回到那一刻。还能用定位器拾取器直接在页面上点一个元素，看 Playwright 会用什么定位。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">不会写就先录。codegen 会开一个浏览器，你点一遍，它生成代码。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npx playwright codegen https://demo.playwright.dev/todomvc</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它挑定位器的顺序是角色、文本、test id。比自己随手抓一个 class 靠谱。断言也能录，工具栏上切到 assert visibility 或 assert text，再点页面元素就行。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">用例多到本地跑不完，就拆片。四台机器各跑一份。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npx playwright test --shard=1/4<br/>npx playwright test --shard=2/4<br/>npx playwright test --shard=3/4<br/>npx playwright test --shard=4/4</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它们之间不需要通信，每个 shard 自己挑自己的用例。CI 里就是四个并行的 job。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">06</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">红了以后，怎么知道为什么</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">测试写多了，大部分时间其实花在红的那几条上。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">跑完只要有失败，HTML 报告会自动打开。按浏览器、通过、失败、跳过、flaky 分 tab，点进去能看到错误、步骤和附件。</p>
+
+<p style="background:#12141a;color:#e6e8ee;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;padding:16px 18px;border-radius:8px;margin:0 0 20px;word-break:break-all;">npx playwright show-report</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">真正好用的是 trace。配置里那句 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">trace: 'on-first-retry'</span>，会在第一次重试失败用例时录一份 trace.zip。平时不录，省空间也省时间。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">打开之后，你能沿时间线一格一格走。每一步之前和之后的页面状态都在，DOM 快照是活的，可以打开开发者工具查元素。旁边的网络、控制台、源码、错误，全跟当前那一步对齐。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">本地想不靠 UI mode 也录一次，加 <span style="font-family:Consolas,Menlo,monospace;font-size:14px;color:#1e8237;">--trace on</span>。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;"><strong style="font-weight:bold;color:#1e8237;">CI 上最该做的，是把 report 和 test-results 当产物传上去。</strong>不然流水线红了，你只有一行日志，还得在本地重跑一遍去猜。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#2ead33;letter-spacing:3px;line-height:1;margin:52px 0 0;">07</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#1a1a1a;margin:10px 0 26px;">它适合谁，又不适合谁</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">如果你的产品是浏览器里的 Web 应用，要跑多内核回归，Playwright 基本是现在的默认答案。用例写得清楚，跑得稳，红了有得查。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">如果只是偶尔点两下、验证一个内网系统，为它搭一套 Node 工程不划算。那种活交给能直接操作你浏览器的 Agent 更省事。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">还有两种情况它帮不上。一个是非浏览器的东西，比如桌面客户端、原生 App。另一个是需要真人判断的界面走查，脚本能截图，但说不清这个间距是不是丑。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">它也不是单元测试的替代品。E2E 慢，一条用例几十秒，覆盖的是主路径。把业务逻辑全压在 E2E 上，最后一定是一套跑两小时、谁都不敢改的测试。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 20px;">我用它最大的收获，不是学会了几个 API。<strong style="font-weight:bold;color:#1e8237;">是改掉了一个习惯。</strong></p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">以前遇到 flaky，第一反应是加 sleep。现在第一反应是问一句，这个断言真正等的信号是什么。</p>
+
+<p style="font-size:16px;line-height:1.8;color:#2b2b2b;margin:0 0 18px;">问题一旦问对了，wait 通常根本不需要。</p>
+
+<p style="text-align:center;font-size:20px;font-weight:bold;color:#1e8237;line-height:1.7;margin:8px 0 36px;">稳定的测试不是等出来的，是把不确定性一个个问出来的。</p>
+
+<p style="text-align:center;margin:30px 0 12px;"><span style="display:inline-block;background:#1e8237;color:#ffffff;font-size:14px;font-weight:bold;padding:10px 22px;border-radius:8px;">Playwright&nbsp;&nbsp;·&nbsp;&nbsp;1.64&nbsp;&nbsp;·&nbsp;&nbsp;Apache 2.0</span></p>
+
+<p style="text-align:center;font-size:13px;color:#9a9a9a;line-height:1.7;margin:6px 0 24px;">概念、安装、配置、运行、调试与 trace 等内容均取自 playwright.dev 官方文档，版本号取自 npm registry 的 @playwright/test 最新发布。</p>

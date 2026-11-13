@@ -1,0 +1,179 @@
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 22px;">前面九篇，每一篇解决一个领域的问题。但真实项目里从来没有「一次只有一个领域在说话」这回事。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">更常见的是这样：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#0e7490;font-weight:bold;">场景一</span>。客户临时要求加一个导出功能，范围说这是合理诉求；进度说 12 月底已经承诺出去，加不进去；成本说没有余量，加就要动预算。三方都没有错，三方都拿得出依据。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#0e7490;font-weight:bold;">场景二</span>。测试发现 30 个缺陷，质量说必须全部修完才能上线；成本说外包预算已经超了，再加人要审批；进度说延期一周就是违约。三个领域的结论互相排斥。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0e7490;font-weight:bold;">场景三</span>。两个项目共用同一个核心开发，两边进度计划里都把他标成关键资源，两边的关键路径都挂在他身上。资源管理只能告诉你「他超配了 160%」，但没法告诉你该砍哪个。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这些冲突不是因为哪个领域做得不好，<span style="color:#be123c;font-weight:bold;">而是因为领域之间天然对立</span>。范围要更多，成本要更少，进度要更快，质量要更好——这四个诉求在数学上就无法同时最大化。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:34px 0 34px;">整合管理的本质不是把十份计划装订成一本，而是当它们互相矛盾时做取舍，并为这个取舍负责。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是系列的第十一篇，也是收尾。结构照旧：七个过程的输入输出、三个重点（冲突裁决、变更控制、知识收尾）、六份模板、归档方式、四类群消息、SKILL 目录，最后是边界。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">有一件事需要先说清楚：<span style="color:#b45309;font-weight:bold;">整合管理是十大领域里唯一没有专属工具的领域</span>。范围有 WBS，进度有关键路径，成本有挣值，风险有矩阵。整合管理的「工具」就是取舍本身，而取舍要有人担责。所以这套 SKILL 的定位很明确——它负责把冲突摆到台面上、把选项算清楚、把决策记下来，但不代替人做决定。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0e7490;color:#0e7490;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #1d4ed8;">1</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0e7490;margin:18px 0 26px;">七个过程：十个领域里最多的一类</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">PMBOK 里整合管理有七个过程，比其他任何领域都多。这不是因为它复杂，而是因为它是唯一一个<span style="color:#0e7490;font-weight:bold;">横跨项目全生命周期</span>的领域——从签发章程到项目关账，它一直在。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/pipeline.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 1 · 七个过程的 ITTO：章程授权、计划定基线、执行产出、沉淀知识、监控偏差、变更纠偏、收口归档</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这七个过程有三个特别容易被跳过，而且跳过的理由都很充分：</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#1d4ed8;font-weight:bold;">制定项目章程</span>。很多项目是先开工、后补章程，因为「业务等不了」。但章程真正的作用不是走流程，是<span style="color:#1d4ed8;font-weight:bold;">定义一个能对结果负责的人</span>。章程里没有签发人，项目出问题时就会变成「大家一起决定的」。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#15803d;font-weight:bold;">管理项目知识</span>。这是七个过程里唯一没有交付物压力的一个。它不产出可验收的东西，所以永远排在待办列表最后。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0e7490;font-weight:bold;">结束项目或阶段</span>。项目一验收，核心成员立刻被抽去下一个项目，收尾就变成一个人补文档。而补出来的文档，通常只有结论没有过程，对下一个项目几乎没价值。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">还有一点值得注意：这七个过程的主要输出，绝大多数是<span style="color:#b45309;font-weight:bold;">「更新」</span>而不是「新增」——更新项目管理计划、更新变更日志、更新经验教训登记册。整合管理的产物不是一堆新文档，而是让已有文档保持一致。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #1d4ed8;color:#1d4ed8;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #7e22ce;">2</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#1d4ed8;margin:18px 0 26px;">重点一：冲突时听谁的，规则必须事前定</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第一个重点。它看起来像是个管理问题，其实是<span style="color:#1d4ed8;font-weight:bold;">数据治理问题</span>。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/conflict.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 2 · 五类典型冲突的裁决结果与依据</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">为什么一定要事前定？因为<span style="color:#be123c;font-weight:bold;">事后再定规则，每个人都能找出对自己有利的那条依据</span>。范围会说「客户需求是第一位的」，进度会说「承诺的日期不能改」，成本会说「超预算要总裁批」。三句话都对，但依据不同层级，吵不出结果。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">所以需要一条明确的优先级链。这条链要写进章程，在启动会上当众确认一遍：</p>
+
+<p style="text-align:center;background:#f4f7fb;border-left:4px solid #1d4ed8;border-radius:0 8px 8px 0;padding:16px 18px;margin:0 0 20px;font-size:15px;color:#1f2937;line-height:1.9;">法规与合同 &gt; 已批准基线 &gt; 项目管理计划 &gt; 会议结论 &gt; 口头承诺</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这条链解决的正是那些最常见的扯皮。「你上次会上答应我的」——会议结论低于已批准基线，所以要走变更；「我在电话里跟你说过」——口头承诺排在最后，不入库。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">AI 在这个环节做什么</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">不是裁决。裁决需要担责，AI 担不了。<span style="color:#15803d;font-weight:bold;">AI 做的是「检测不一致」</span>——同一件事在两份文档里说法不同时，把它指出来。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">举个具体的例子。进度计划说 12 月 20 日上线；风险登记册里写着「UAT 必须在 12 月 10 日前完成」；范围说明书里说 UAT 需要 15 个工作日。这三个数字放在一起，12 月 20 日上线就是不可能事件。<span style="color:#be123c;font-weight:bold;">任何一个领域单独看都没问题，交叉看才暴露出矛盾</span>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这类交叉校验可以完全自动化：把十份文档的关键日期、金额、数量抽成结构化字段，做一次两两比对。上面那个矛盾，机器 3 秒就能发现，而人可能要等到 12 月 5 日才发现——那时候只剩两个选择：违约，或者通宵。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #7e22ce;color:#7e22ce;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #15803d;">3</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#7e22ce;margin:18px 0 26px;">重点二：变更控制，拦死和全放行一样糟</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第二个重点。变更是整个整合管理里最核心的一个过程，因为<span style="color:#7e22ce;font-weight:bold;">它是唯一能合法打破基线的通道</span>。没有它，基线就是一张过期作废的纸；滥用它，基线就形同虚设。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/change.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 3 · 变更五步流程与三级审批阈值</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">两个同样严重的反模式</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be123c;font-weight:bold;">全部上会</span>。CCB 变成每周例会，所有变更不论大小都排队等。结果是平均决策周期从 2 天变成 11 天，项目经理为了不耽误事，开始「先做后补」，变更流程彻底失效。这叫做流程把业务逼到了流程之外。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#be123c;font-weight:bold;">全都不上会</span>。「这点小改动不用走流程」，一次两次没问题，一百次之后你会发现计划和实际差了 40%，而且找不到是在哪一步差出来的。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">解法是分级阈值。上图的三级是这样的：5 人日以内且不影响里程碑，项目经理直接批；20 人日以内或影响里程碑，走 CCB；超过 20 人日或动到合同与预算基准，必须发起人和 PMO 一起签。<span style="color:#b45309;font-weight:bold;">阈值必须由组织定，不能由项目自己定</span>——项目自己定阈值，等于自己给自己发豁免权。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">变更单上最值钱的一栏</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">不是「影响多少工作量」，是<span style="color:#15803d;font-weight:bold;">「如果不做会怎样」</span>。这一栏能挡掉一半的伪需求。因为大部分「必须加」的功能，在填这一栏的时候会暴露真相：不是业务会停，是某个人会觉得不方便。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">还有一条容易被忽略的规则：<span style="color:#1d4ed8;font-weight:bold;">被驳回的变更也要入库</span>。否则同一个变更会在两个月后被重新提一次，由另一个人提，讨论一遍同样的问题，再被驳回一次。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">顺带说一个统计规律：变更的真实成本从来不是那几天工作量。<span style="color:#be123c;font-weight:bold;">它主要花在重新协调上</span>——通知测试改用例、告诉运维改部署方案、跟客户重新对齐验收标准、把已经写好的文档改一遍。这些时间不记在任何一张变更单上，但它们真实存在，通常是直接工时的 1.5 到 2 倍。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #15803d;color:#15803d;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #b45309;">4</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#15803d;margin:18px 0 26px;">重点三：收尾，把项目变成组织的记忆</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这是第三个重点。前面说过，「管理项目知识」是七个过程里唯一没有交付物压力的一个，所以它最容易变成走过场。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/close.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 4 · 收尾三件事：验收移交、复盘、归档进知识库</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">经验教训登记册最常见的结局，是躺在某个共享盘里没人打开。原因很简单：<span style="color:#be123c;font-weight:bold;">记录不等于知识，知识是「下次遇到同样情况该怎么做」</span>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">所以有一项指标值得盯：经验教训转化率，也就是<span style="color:#15803d;font-weight:bold;">变成规则的条数除以记录条数</span>。大多数团队这个数字不到 10%——记了 100 条，30 条进了库，真正改变了做法的只有 8 条。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">什么叫「变成规则」</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">教训：「上线前应该做压测」。这是记录，不是规则。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">规则：「所有对外接口上线前必须通过 3 倍峰值压测，未通过不允许发布，压测报告作为发布单的必填附件」。这才是规则——它可执行、可检查、有明确的不合规后果。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">区别在于：前者需要有人记得，后者不需要。<span style="color:#b45309;font-weight:bold;">只有不依赖记忆的东西才能跨项目传递</span>。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">让复盘有效的三条规则</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#7e22ce;font-weight:bold;">只讲事不讲人</span>。一旦开始讨论「谁的责任」，会议性质就变了，后面所有人都会开始自我保护。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#7e22ce;font-weight:bold;">每条教训必须产出可执行规则</span>。产不出来的，说明还没想清楚，先别入库。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#7e22ce;font-weight:bold;">规则必须指定落地责任人</span>。没有责任人的规则，和没有规则是一样的。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #b45309;color:#b45309;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #be123c;">5</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#b45309;margin:18px 0 26px;">六份模板与组织过程资产归档</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">七个过程收敛成六份文档，其中三份是全项目唯一的，另外三份是持续更新的台账。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">统一 front-matter</p>
+
+<p style="background:#141518;color:#d3d7de;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">---<br/>&nbsp;doc_id: IM-PAY-2026-014<br/>&nbsp;doc_type: change_request<br/>&nbsp;project: payment-v2<br/>&nbsp;version: 1.2.0<br/>&nbsp;status: baselined<br/>&nbsp;baseline_at: 2026-11-08<br/>&nbsp;owner: wangjing<br/>&nbsp;related: [SC-PAY-2026-008, ST-PAY-2026-003]<br/>&nbsp;supersedes: IM-PAY-2026-013<br/>---</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">doc_type</code> 六个取值：project_charter、integrated_plan、work_performance、knowledge_log、change_request、closure_report。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">变更单：一份完整记录</p>
+
+<p style="background:#141518;color:#d3d7de;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">change_id: CR-021<br/>title: 增加对公转账回单下载<br/>reason: 财务对账需要，否则每月人工 3 人日<br/>impact:<br/>&nbsp;&nbsp;scope: 新增 2 个接口<br/>&nbsp;&nbsp;schedule: +6 人日，M3 顺延 3 天<br/>&nbsp;&nbsp;cost: +1.8 万元<br/>&nbsp;&nbsp;quality: 需补 12 个用例<br/>if_not_done: 财务继续人工对账，每月 3 人日<br/>options:<br/>&nbsp;&nbsp;- A 本期做，+6 人日<br/>&nbsp;&nbsp;- B 下期做，本期人工<br/>&nbsp;&nbsp;- C 只做查询不做下载<br/>level: L2<br/>decision: B<br/>decision_by: ccb<br/>decision_at: 2026-11-08<br/>baseline_after: v3.1</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">几个字段值得单独说。<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">impact</code> 必须拆成四个维度，不能合成一个「影响：中等」——合起来就等于没写。<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">if_not_done</code> 是前面说的那一栏。<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">options</code> 至少三个且必须包含「不做」——只有一个选项的决策不叫决策，叫通知。<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">baseline_after</code> 记录决策后基线升到哪一版，这是让基线和变更对得上的唯一办法。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">归档：进项目知识库</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;">路径固定为 <code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">/kb/{project}/integration/{doc_type}/{doc_id}-v{version}.md</code>，三态 draft → baselined → superseded，永不物理删除。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这里有本系列里唯一的一个特殊要求：<span style="color:#b45309;font-weight:bold;">整合管理文档要能反查其他九个领域</span>。变更单调用了范围基线，范围基线就要能查到有哪些变更动过它。<code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">related</code> 字段做双向索引，这是整套体系里最不起眼但最有用的一处设计——它让「这个数字是从哪来的」永远有答案。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #be123c;color:#be123c;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #0e7490;">6</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#be123c;margin:18px 0 26px;">四类群消息与 SKILL 结构</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">整合管理的群消息有一条硬规则：<span style="color:#be123c;font-weight:bold;">只发需要集体知情或集体决策的</span>。单个领域的细节留在领域自己的频道里。</p>
+
+<p style="text-align:center;margin:20px 0 0;"><img src="assets/message.png" style="width:100%;border-radius:10px;display:block;margin:0 auto;"/></p>
+<p style="text-align:center;font-size:13px;color:#8b949e;margin:10px 0 30px;">图 5 · 四类整合管理消息：变更决策、里程碑达成、项目健康度、收尾归档</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be123c;font-weight:bold;">变更决策请求</span>：要 CCB 拍板时发。必须给三个选项加一个建议，并写清截止时间和超期默认怎么走。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#15803d;font-weight:bold;">里程碑达成</span>：需要集体知情时发。计划 vs 实际、交付物清单、遗留问题、下一步前置条件。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#b45309;font-weight:bold;">项目健康度</span>：周期性判断。一句话结论加三条硬指标（SPI、CPI、缺陷逃逸率），再加一个最大风险和触发条件。注意这里只发一个风险，不是十个——发十个等于没发。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#0e7490;font-weight:bold;">收尾归档通知</span>：闭环与复用。知识库路径加三条可复用的教训。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 14px;font-weight:bold;">SKILL 目录：一个 Skill，六个脚本</p>
+
+<p style="background:#141518;color:#d3d7de;font-family:Consolas,Menlo,monospace;font-size:12.5px;line-height:1.75;padding:16px 18px;border-radius:8px;margin:0 0 18px;word-break:break-all;">skills/integration-manager/<br/>&nbsp;SKILL.md<br/>&nbsp;references/<br/>&nbsp;&nbsp;&nbsp;itto.md&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 七过程输入技术输出<br/>&nbsp;&nbsp;&nbsp;priority.md&nbsp;&nbsp;&nbsp;&nbsp;# 冲突优先级与裁决表<br/>&nbsp;&nbsp;&nbsp;threshold.md&nbsp;&nbsp;&nbsp;# 变更分级阈值<br/>&nbsp;&nbsp;&nbsp;templates.md&nbsp;&nbsp;&nbsp;# 六份文档模板<br/>&nbsp;&nbsp;&nbsp;messages.md&nbsp;&nbsp;&nbsp;&nbsp;# 四类群消息格式<br/>&nbsp;scripts/<br/>&nbsp;&nbsp;&nbsp;charter.py&nbsp;&nbsp;&nbsp;&nbsp;# 章程结构化与校验<br/>&nbsp;&nbsp;&nbsp;plan.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 计划一致性与交叉比对<br/>&nbsp;&nbsp;&nbsp;change.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 变更分级、影响汇总<br/>&nbsp;&nbsp;&nbsp;knowledge.py&nbsp;&nbsp;# 教训转规则、转存<br/>&nbsp;&nbsp;&nbsp;close.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 验收清单与归档校验<br/>&nbsp;&nbsp;&nbsp;notify.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 企微 / 飞书推送</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><code style="background:#eef2f7;color:#1d4ed8;font-family:Consolas,Menlo,monospace;font-size:13px;padding:1px 5px;border-radius:3px;">plan.py</code> 是整套体系里最特别的一个。它不生成任何新文档，只做一件事：<span style="color:#15803d;font-weight:bold;">把十个领域的关键数字抽出来做交叉比对</span>，发现矛盾就报警。每周跑一次，输出的是一份「不一致清单」。这份清单往往比任何一份领域报告都有价值。</p>
+
+<p style="text-align:center;margin:50px 0 0;"><span style="display:inline-block;border:2px solid #0e7490;color:#0e7490;font-size:19px;font-weight:bold;width:42px;height:42px;line-height:42px;box-shadow:6px 6px 0 #1d4ed8;">7</span></p>
+<p style="text-align:center;font-size:19px;font-weight:bold;color:#0e7490;margin:18px 0 26px;">边界：取舍必须有人担责</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be123c;font-weight:bold;">第一，AI 不做取舍</span>。它可以算出「延期三天省 8 万」和「按期交付多花 8 万」，但选哪个取决于业务对时间的真实需求——那个判断既涉及商业价值，也涉及谁承担后果。这一步必须有人签字。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be123c;font-weight:bold;">第二，阈值由组织定</span>。AI 只能执行阈值，不能自己设定。让项目自己定阈值，等于让它给自己发豁免权。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be123c;font-weight:bold;">第三，知识库不等于知识管理</span>。把文档存进去只是第一步。没有检索、没有规则转化、没有人在新项目启动时主动查，那就只是一个更大的共享盘。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 12px;"><span style="color:#be123c;font-weight:bold;">第四，健康度红灯必须带请求</span>。只发一个「红」不发具体请求，等于把焦虑转嫁给群里所有人，没有一个人会因此采取行动。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;"><span style="color:#be123c;font-weight:bold;">第五，收尾报告不能美化</span>。延期就写延期，超支就写超支，复盘里最没用的部分就是「在领导的正确指导下圆满完成任务」。这类文字会让整份复盘失去被检索的价值。</p>
+
+<p style="text-align:center;font-size:22px;font-weight:bold;color:#1f2430;line-height:1.6;margin:40px 0 34px;">前十个领域教你怎么把事做对，整合管理教你在都不对的时候，选一个能承受的错。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">十一篇写下来，这套东西真正的价值可能不在任何一个单独领域，而在于<span style="color:#0e7490;font-weight:bold;">它们的数字能互相对上</span>。进度说这个月完成 40%，成本说花了 45%，质量说缺陷数翻倍——单看每一条都是一句汇报，放在一起才是一个判断。</p>
+
+<p style="font-size:15px;color:#2c3340;line-height:1.88;margin:0 0 20px;">这也是为什么整个系列都在反复强调同一件事：<span style="color:#b45309;font-weight:bold;">主键统一、口径统一、模板统一</span>。不是为了整齐好看，是为了让交叉比对成立。十个领域各自做得再精细，如果数字对不上，项目经理最后还是只能靠开会吵架来决策。</p>
+
+<p style="font-size:14px;color:#7c8798;line-height:1.85;margin:36px 0 8px;padding-top:20px;border-top:1px solid #e6eaf0;">系列进度：框架 → 范围 → 进度 → 成本 → 质量 → 资源 → 沟通 → 风险 → 采购 → 干系人 → 整合（本篇，完）。</p>
+
+<p style="font-size:14px;color:#7c8798;line-height:1.85;margin:0 0 8px;">Skill Accumulation 提示：十一篇同结构推文，骨架完全一致。如果把这套结构固化成 skill——输入领域名、过程清单、两到三个重点、一支配色——剩下的正文、五张图、模板章节都可以按模板生成。这也是这个系列本身想证明的事：可复用的东西，才是有价值的。</p>
