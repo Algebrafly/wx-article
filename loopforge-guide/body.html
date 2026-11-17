@@ -1,0 +1,338 @@
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">上周我把 LoopForge 装在一台 2 核 4G 的云服务器上。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">从 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">git clone</code> 到第一次跑完一条带人工审批的流程，大概十分钟。第三条命令敲完，它自己把镜像拉好、容器起好，终端直接吐了一个地址给我。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">这是腾讯开源的团队级 AI 研发协作平台（GitHub 仓库 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">Tencent/LoopForge</code>）。它跟普通 AI 对话框的思路不一样——不是让模型更聪明，而是把一套交付流程钉死，让 AI 在里面干活。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">这篇按我实际跑的顺序写：装起来、免 Key 跑通、配执行器、两条工作路径、流程设计器怎么设门禁、定时任务，最后是七个我踩过的坑。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/home.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">LoopForge 的 AI 工作台首页，左侧功能图标栏，右侧主对话区</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">01</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">它到底解决什么问题</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">先说结论：它补的是单次对话在<b>团队交付</b>场景下的五个缺口。</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:15px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;width:38%;">常见痛处</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">LoopForge 的做法</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">合上电脑任务就断</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">任务跑在独立的 7×24 云端沙箱里，闲置自动存快照休眠，次日打开接着跑</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">跨岗位信息靠手搬</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">产品、设计、研发共用一个团队会话，需求澄清和代码提交在同一条上下文里</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">AI 说改好了其实没测</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">SOP 节点配客观门禁，按真实命令退出码 <b>exit 0</b> 判定，失败自动附日志打回</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">怕 AI 擅自做主</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">人工关口与操作确认卡片，关键节点停下来等你点通过或退回</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">同样的坑反复踩</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">每次跑完自动评测，0–100 分找出返工卡点，可一键写回流程或角色规范</td>
+</tr>
+</table>
+
+<p style="margin:22px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">它有两个形态，别搞混。</p>
+
+<p style="margin:0 0 10px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>平台版</b>：浏览器打开的 Web 工作台，Docker 部署，支持多人共享会话、可视化画布、审批中心。下面讲的全是这个。</p>
+
+<p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>Local 版</b>：装进 Claude Code、Codex、Cursor、CodeBuddy、Pi 的 CLI 插件，一行命令，不需要服务端。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">还有几个词后面会反复出现，先对齐：<b>Main Bot</b> 是首页里跟你对话的对象，相当于项目总管；<b>角色</b>是它派出去的专科同事；<b>SOP</b> 是钉死的办事流水线；<b>沙箱</b>是 AI 改代码、跑测试用的隔离容器。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">02</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">装起来：三行命令，端口 8090</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">依赖只有四样：Git、curl、Python 3、Docker（含 Compose）。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">没装 Docker 也别慌，脚本会问你一句然后帮你装；不想被问就带上 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">LOOPFORGE_YES=1</code>。全新 Ubuntu 先把前三样装好：</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:14px;color:#1d1d1f;line-height:1.9;">sudo apt-get update &amp;&amp; sudo apt-get install -y git curl python3</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">然后三行：</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:14px;color:#1d1d1f;line-height:1.9;">git clone https://github.com/Tencent/LoopForge.git<br/>cd LoopForge<br/>./start.sh</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">脚本干三件事：检查依赖、生成带独立密钥的 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">.env</code>（已有就保留，重复执行是安全的）、按 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">compose.yaml</code> 里钉死的版本拉镜像并后台启动。它不在你本机构建镜像，所以第一次也很快。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">终端会打印公网、局域网、本机三个地址。默认端口 <b style="color:#4f46e5;">8090</b>，本机就是 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">http://localhost:8090</code>。</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:12px 16px;margin:18px 0;font-size:14px;line-height:1.8;color:#8a5a00;"><b>安全提醒：</b>第一个注册的账号自动成为管理员，而管理员创建之前这个地址是完全开放的。云服务器先把安全组限制到你自己的 IP。要关掉公开注册，把 <code style="background:#ffffff;padding:1px 4px;border-radius:3px;">AGENTFLOW_ALLOW_SIGNUP</code> 设成 <code style="background:#ffffff;padding:1px 4px;border-radius:3px;">false</code>。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">日常就这几条，都在仓库目录里敲：</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:14px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">想做的事</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">命令</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">看日志</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#4f46e5;font-family:Menlo,monospace;">./start.sh logs</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">停止服务（数据保留）</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#4f46e5;font-family:Menlo,monospace;">./start.sh stop</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">拉新镜像并更新</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#4f46e5;font-family:Menlo,monospace;">./start.sh pull</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">改用当前源码构建</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#4f46e5;font-family:Menlo,monospace;">./start.sh dev</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">切回发布镜像</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#4f46e5;font-family:Menlo,monospace;">./start.sh release</td>
+</tr>
+</table>
+
+<p style="margin:20px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">8090 被占了就换端口，不想暴露到公网就只监听本机：</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:13px;color:#1d1d1f;line-height:1.9;">AGENTFLOW_HTTP_PORT=8092 ./start.sh<br/>LOOPFORGE_BIND=127.0.0.1 ./start.sh</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">注意：已经生成过 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">.env</code> 之后改端口，要直接编辑那个文件再 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">./start.sh restart</code>。命令行前缀的变量不会覆盖已存在的配置，这一点很容易白折腾。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">03</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">先跑一遍不用 Key 的流程</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">这一步别跳。它是后面所有机制的最小样本。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">登录后平台已经预置了 <b>LOOP · LoopForge 体验项目</b>。回 AI 工作台首页，输入框下方四张快捷卡片的第一张写着「一键体验」，小字标注：无需 API Key 或 GitHub，跑通真实脚本、人工审批与交付产物。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">点它。页面跳到运行详情，你会看到三段状态：</p>
+
+<p style="margin:0 0 10px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 第 1 步「生成验收报告」绿色已完成，沙箱里真实生成了 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">reports/welcome.md</code></p>
+<p style="margin:0 0 10px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 第 2 步「请确认验收报告」橙色边框，状态待审批</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 第 3 步「完成验收」灰着，等你拍板</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">中间那块黄色面板就是人工关口。点「确认通过，继续下游」，一两秒后后两步依次变绿，整条运行变成已完成。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/run.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">运行详情页：脚本节点已完成，流程停在人工审批关口</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">然后点开「交付物」里的 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">reports/welcome.md</code>。预览弹窗里除了渲染效果和源码，还有一行东西：<b>SHA-256 校验值</b>。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">这个细节很小，但它意味着产物是有指纹的。你交给同事的到底是哪一版，能查。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/artifact-preview.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">产物抽屉：渲染预览、源码、SHA-256 与一键下载</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">顺带说一句：这条流程<b>完全不调用大模型</b>。它存在的目的就是让你在没配任何 Key 之前，先把「脚本节点 + 审批节点 + 产物」这段骨架摸清楚。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">摸清了之后，换成有 AI 参与的流程，你不会分不清哪一步卡在机器、哪一步卡在人。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">04</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">配 Key：9 种执行器，别填错坑</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">开源版不捆绑模型额度，得自己填。支持 9 种 Coding Agent 执行器：CodeBuddy、Codex、Claude Code、Cursor、OpenCode、Antigravity、Kimi Code、Pi、DeepSeek Harness。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">入口只有一个：左下角齿轮 → <b>个人配置 → 模型与执行</b>。也可以用输入框上方黄色提示条右边的「去配置」直接跳过去。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">填法分四类，认错类别就是浪费半小时：</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:14px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">类别</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">执行器</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">关键要求</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">默认主力</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">CodeBuddy</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">先选站点（国际站 / 国内站），再填 <b>ck_</b> 开头的 Key</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">官方直连</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">Cursor CLI</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">填 <b>crsr_</b> 开头的 Key，不用填 Base URL</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">官方地址 + 可选网关</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">Codex、Claude Code、Kimi Code、DeepSeek Harness、Antigravity</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">Base URL 留空走官方，接第三方网关才填。Kimi / DeepSeek 可选接口协议</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">纯网关</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">OpenCode、Pi</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">Key、Base URL、接口协议三项都必填</td>
+</tr>
+</table>
+
+<p style="margin:22px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">最常见的报错是这个：把 DeepSeek、OpenAI 那种 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">sk-</code> 开头的 Key 贴进 CodeBuddy，调用时直接 401。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">CodeBuddy 只认 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">ck_</code>，且必须和所选站点一致。手里的 sk- Key 请改填到 DeepSeek Harness、Kimi Code、OpenCode、Claude Code 或 Codex。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/settings.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">个人配置页：保存后凭证卡片会从「未配置」变成绿色「已配置」</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">两个生效规则要记住，不然会以为配置没成功：</p>
+
+<p style="margin:0 0 10px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 个人凭证只对<b>之后新发起</b>的对话和任务生效，回不到聊了一半的会话</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#2b2b2b;">· SOP 跑起来用的是<b>需求责任人</b>的凭证，没指定就用<b>项目 Owner</b> 的。所以「我配好了为什么流程说没 Key」，去查这条需求归谁</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">另外，Key 只填在个人配置里。别贴在对话框，别写进需求描述——聊天记录是团队共享的。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">05</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">两种工作方式，用错场合就白折腾</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>方式一：在 AI 工作台跟 Main Bot 聊。</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">适合头脑风暴、写方案、改文案、查进度。你说话，它干活；涉及改代码时它自己在后台开沙箱，最后提一个 PR，产物落在右侧抽屉里。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">发第一条任务有四个标准动作，少一步就会卡住：新对话 → 确认归属项目 → 输入想法 → 发送。第二步最容易漏，输入框左上角如果还写着「选择项目」，发送箭头是灰的，你以为网卡了。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>方式二：跑一条 SOP。</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">适合正式功能、Bug 修复这种要经过「澄清 → 设计 → 实现 → 独立评审 → 测试 → 人工验收」的任务。在对话里让 Main Bot 启动，或者去「需求列表 / 流程模板」点运行。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">平台内置四条蓝图，只读，复制到自己项目后随便改：</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:14px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">内置 SOP</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">典型阶段</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">要绑仓库吗</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">通用产品方案</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">澄清 → 方案设计 → 独立评审 → 人工定稿</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">不用</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">通用前端交付</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">需求定型 → 前端方案 → 实现 → 构建预览 → 人工验收</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">可选</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">通用后端交付</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">需求定型 → 接口设计 → 开发 → 独立评审 → 单测门禁 → 验收</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">可选</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">通用缺陷修复</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">复现定位 → 修复方案 → 修复 → 独立评审 → 回归测试 → 验收</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">需要</td>
+</tr>
+</table>
+
+<p style="margin:22px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">我的建议是先只跑一遍「通用产品方案」——纯文档产出，不用连 Git，最适合验证整条链路通不通。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">判断标准很简单：<b>一次就能做完的事，别上 SOP。</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SOP 的价值在可重复、可追溯，代价是中间会停下来等你确认。三分钟的改动挂一条六节点流程，纯属给自己找事。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">06</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">门禁才是这套东西的核心</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">点进任意一条 SOP，就是流程设计器：左边组件面板，中间画布，右边属性检查器。画布上实线表示成功往下，红色虚线表示失败打回。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">只有五种节点，把所有工作切成三类来源：</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:14px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">节点</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">谁来干</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">Agent 节点</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">AI 角色写文档、写代码、做评审，必须交出指定文件</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">脚本节点</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">确定性命令：跑单测、构建、Lint、生成固定报表</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">人工门禁</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">暂停流水线，等你在「待我确认」里放行或退回</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">子 SOP</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">嵌套复用另一条流程，比如公共的测试流程</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">预览构建</td>
+<td style="border:1px solid #e5e5ea;padding:11px 12px;color:#2b2b2b;">构建前端站点并生成可点开的预览链接</td>
+</tr>
+</table>
+
+<p style="margin:22px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">真正让它区别于「对话框里连着发指令」的，是节点能配两样东西。</p>
+
+<p style="margin:0 0 12px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>一、客观门禁。</b>要求必须产出 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">test-report.md</code>，且测试命令返回 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">exit 0</code>。返回非 0 就判定未通过。AI 说「我已经测过了」没有用，退出码说了算。</p>
+
+<p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>二、失败自动打回。</b>门禁没过，或人工点了退回，流程沿红色虚线回到你指定的上游节点，并把刚才的报错日志一起塞过去。在你设的重试上限内，AI 拿着真实报错自己修，修完重跑门禁。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/scene-gate-rework.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">客观门禁：测试命令未通过时，自动提取报错日志并打回上游节点返工</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">还有一个设计我觉得挺对：<b>版本冻结快照</b>。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">你改了画布点「保存 / 发布版本」，只对之后新启动的运行生效。正在跑的、或者停在人工审批里等你签字的，用的是启动那一刻的快照。中途改流程不会把在途任务搞乱。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">另外，按「设置 → 角色定义」改提示词是改角色本身；画布上的 Agent 节点只负责挑选用哪个角色。两件事分开，避免有人在画布上随手改角色把别的流程带崩。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">07</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">定时任务，和七个坑</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">左侧第七个图标是「AI 定时任务」。工作台是你主动找 AI 说话，定时任务是你定好闹钟，让它在后台自己开工——没人开浏览器，服务端也会准时唤醒沙箱。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">新建时填四样：任务名和所属项目、执行计划、提示词或关联 SOP、结果通知（可选）。保存后可以在列表右侧点「立即运行」先试一次，不用等到点。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/real-schedule-modal.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">新建定时任务：执行计划、所属项目、模型与提示词</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">典型用法是每天上午九点巡检一次：检查过去 24 小时失败或卡住的运行，按优先级整理成简报，推到研发群。计划表达式写 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">0 9 * * 1-5</code>，工作日九点，北京时间。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">三个限制先知道，省得失望：</p>
+
+<p style="margin:0 0 8px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 用的是<b>项目 Owner</b> 的模型凭据，不是你个人的</p>
+<p style="margin:0 0 8px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 它只负责启动，<b>不会替你审批</b>，该停还是停</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#2b2b2b;">· 已经失败的运行固定用当时配置，修好 SOP 之后要新启动一次才生效</p>
+
+<p style="margin:26px 0 14px;font-size:17px;font-weight:bold;color:#4f46e5;">七个我踩过的坑</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>① 跑完「一键体验」，需求列表还是空的。</b>因为它启动的是一条独立运行，不会凭空给你塞一条假需求。去「运行记录」看。
+</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>② 发送箭头是灰的。</b>多半是输入框左上角还写着「选择项目」。选一次，浏览器会记住。
+</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>③ CodeBuddy 填 sk- 报 401。</b>它只认 ck_。而且国际站、国内站别选反。
+</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>④ OpenCode、Pi 保存不了。</b>它们没有官方模型服务，Base URL 必填，接口协议也要对上。
+</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>⑤ 换 CLI 后对话变空白。</b>不同 CLI 的原生会话不能中途接力，系统给你开新对话是保护机制，不是丢记录。旧对话还在左侧列表里。
+</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>⑥ 任务好像卡住了，既没报错也没继续。</b>看左侧「待我确认」有没有红色角标——它就是在等你。关掉页面也不会超时，它一直在那儿。
+</p>
+
+<p style="background:#fff8e6;border-radius:8px;padding:13px 16px;margin:12px 0 0;font-size:14px;line-height:1.85;color:#8a5a00;"><b>⑦ 定时任务第一次试跑失败，报 codebuddy: not found。</b>SOP 绑的沙箱里没装执行器。改回平台默认沙箱再跑就行——这个错我也遇到过，报错信息藏得比较深，得点进失败节点看。
+</p>
+
+<p style="text-align:center;font-size:24px;font-weight:bold;color:#1a1a1a;text-align:center;line-height:1.7;padding:26px 0 6px;">LoopForge 卖的不是"AI 写代码"，<br/>而是"把验收标准写进流程里"。</p>
+
+<p style="margin:14px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">你自己用 AI 写东西的时候，最容易出的问题不是它不会写，而是它写完了，你不知道该不该信。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">LoopForge 的做法很朴素：把"什么算完成"提前写成命令和文件，让机器判。人只在需要判断的地方出现。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">装一次，跑一遍那个不用 Key 的流程，你大概就知道它适不适合你们团队了。</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:36px 0 0;font-size:14px;line-height:2;color:#2b2b2b;">
+<b>相关链接</b><br/>
+· 使用文档：loopforge.cn/docs<br/>
+· 开源仓库：github.com/Tencent/LoopForge<br/>
+· 本地一键安装：npx -y loopforge-cli@latest install claude
+</p>
