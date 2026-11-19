@@ -1,0 +1,206 @@
+<p style="margin:24px 0 0;"><img src="assets/cover.png" style="width:100%;display:block;border-radius:6px;" /></p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">我手上一个中型仓库，最近把 AI 写代码的效率从"每两三次就要回滚一次"拉到了"80% 直接提交"。没换模型，没换工具，只多了两样东西：</p>
+
+<p style="margin:0 0 10px;font-size:16px;line-height:1.8;color:#2b2b2b;">· 一份 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">AGENTS.md</code>，放在仓库根目录，跨工具通用</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">· 三份 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">SKILL.md</code>，分别管"写前端组件""写 FastAPI 路由""写 SQL 脚本"</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">这篇写的就是这两样东西到底该写什么、不该写什么、以及不同语言/框架的剪裁版本。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">01</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">先把三件事分清</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">这两年出现了一堆文件名：<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">CLAUDE.md</code>、<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">AGENTS.md</code>、<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">GEMINI.md</code>、<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">.cursorrules</code>、<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">.github/copilot-instructions.md</code>。名字不一样，来源不一样，但它们在做同一件事：<b>告诉 AI，这个仓库的规则是什么。</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">写的时候先分清这三层，不要混在一起：</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:15px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;width:22%;">层级</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;width:32%;">典型位置 / 文件名</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">写什么</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#059669;font-weight:bold;">L1 · 项目说明书</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;"><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">AGENTS.md</code><br/>（Codex、Copilot、Gemini 都认）</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">这个仓库怎么 build、怎么 test、目录结构是什么、不能碰什么。<b>跨工具通用，提交到仓库。</b></td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2563eb;font-weight:bold;">L2 · 个人偏好</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;"><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">~/.claude/CLAUDE.md</code><br/><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">.claude/CLAUDE.local.md</code></td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">只有你关心的事："提交信息写中文"、"优先用 Python 3.12"。<b>不入库，进 .gitignore。</b></td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#9333ea;font-weight:bold;">L3 · 专项技能</td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;"><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">skills/xxx/SKILL.md</code></td>
+<td style="border:1px solid #e5e5ea;padding:12px 14px;color:#2b2b2b;">某一类任务的完整 SOP："写 React 组件"、"写 SQL 迁移"、"跑端到端测试"。<b>可以入库给团队共用。</b></td>
+</tr>
+</table>
+
+<p style="margin:22px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">一件很重要的事：<b>别把 L1 写成 L2。</b>"我们这个仓库用 pnpm 锁定依赖"是 L1，"我个人觉得 pnpm 好"是 L2。前者要提交，后者进 .gitignore。混着写，同事的 AI 看到你的个人偏好也会被污染。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">跨工具兼容性上，<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">AGENTS.md</code> 是目前最接近"单一信源"的做法——Codex CLI、Copilot 自定义指令、Cursor 的指令模式、Gemini CLI 都在读它。只有 Claude Code 还主推 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">CLAUDE.md</code>，但也兼容 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">AGENTS.md</code>。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">02</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">AGENTS.md 该写什么，有骨架吗</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">我见过最差的 AGENTS.md 是一句"Write clean code"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">模型读了之后，"clean code"这个词会触发一批训练数据里的默认行为：加注释、拆小函数、用更多抽象。结果是我的 FastAPI 路由从 40 行被拆成了 5 个 service 层方法，每个方法只有一行，读起来更累。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 的正确姿势是<b>给模型具体命令，不是给它审美口号</b>。下面是我自己用下来最稳的七段骨架：</p>
+
+<p style="margin:24px 0 0;"><img src="assets/agents.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">七个必备段落，再加一个可选项</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">逐个展开，说清楚每段该写什么、不该写什么。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§1 项目概览</b>：一句话定位 + 技术栈清单 + 目录 2-3 层。技术栈要精确到版本："FastAPI 0.115+ / SQLModel 0.0.22"，不要只写"Python Web 后端"。目录只列顶层，让 AI 知道去哪找东西，不要把整个树贴进去——读不完。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§2 构建与测试</b>：这是最重要的一段，每条都要<b>可执行</b>。不要写"运行测试"，写 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">pnpm test:unit</code>。依赖管理方式也要写清楚："poetry 锁版本，pip-tools 不允许"；环境变量写最少那几个："只需要 DATABASE_URL，本地用 sqlite"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§3 代码规范</b>：语言特有约束。TypeScript 写"hooks 必须用 hooks-extra 的 exhaustiveness 规则"；Java 写"DTO 和 Entity 禁止互转，用 MapStruct"；Go 写"<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">gofmt</code> 不可关闭"。提交和分支约定写清楚："commit 信息中文，feat/xxx 分支"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§4 工作流</b>：告诉 AI 从哪开始看、改完跑什么、不要动哪些文件。"改动路由先看 tests/routers/test_user.py 的 fixture"、"不要动 migrations/ 里已合并的迁移文件"、"前端改完跑 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">pnpm lint --fix</code>"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§5 约定与陷阱</b>：把你踩过的坑写进去，每条带具体后果。"用户表 id 是 Snowflake 生成，别改成自增 int——会炸下游"、"这个 Redis 是 pub/sub 用的，别当 cache 用——TTL 设了会丢消息"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§6 验证清单</b>：每类改动的检查项。"改接口契约 → 跑 openapi 生成 → 更新前端 types"、"改数据库 schema → 写 Alembic 迁移 → 跑 data migration 脚本 → 跑集成测试"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b style="color:#059669;">§7 本地 vs CI</b>：平台差异。"本机能跑 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">docker compose up</code> 启动数据库，CI 用 Testcontainers"、"部署地址：staging 是 x，production 是 y，预览环境自动挂 pull request 上"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">再加一段 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">AGENTS.local.md</code>，只有你关心的个人偏好："提交信息用中文"、"优先用 Python 3.12 语法"。<b>这段进 .gitignore，不要提交。</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">一条黄金准则：<b>过时的命令比没有命令更危险。</b>AI 照着跑旧的 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:13px;">npm run build-old</code> 只会产出空产物。AGENTS.md 每两三个礼拜过一遍，过期的命令、废弃的工具链、换掉的规范，清掉。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">03</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">SKILL.md 怎么写，骨架是什么</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 是项目说明书，SKILL.md 是某一类任务的完整 SOP。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">区别在哪？AGENTS.md 是"这个仓库的通用规则"；SKILL.md 是"写 React 组件时按这个流程走"。前者每仓库一份，后者可以全团队共用，甚至跨仓库复用。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">每个 skill 就是一个目录，<b>SKILL.md 是必需文件</b>，其他都是可选：</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:13px;color:#1d1d1f;line-height:1.9;">skill-name/<br/>├── SKILL.md         必需：YAML frontmatter + 正文指令<br/>├── scripts/         可选：可执行脚本，被正文引用<br/>├── references/      可选：详细手册 / 规范，按需加载<br/>└── assets/          可选：模板、字体、图标等输出资源</p>
+
+<p style="margin:24px 0 0;"><img src="assets/skill.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">SKILL.md 分两段：YAML 决定何时触发，Markdown 决定执行方式</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">YAML frontmatter 是第一段，写在文件最开头、两个 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">---</code> 之间。它决定两件事：这个 skill 叫什么（变成 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">/skill</code> 命令），以及模型什么时候觉得该用它。</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:13px;color:#1d1d1f;line-height:1.9;">---<br/>name: react-component<br/>description: &gt;-<br/>  在现有项目里新增或修改一个 React 组件。<br/>  当用户要求新建 / 重构 / 优化 React 组件、<br/>  Hooks、或 Tailwind 样式时使用。不适用于写新页面路由。<br/>---</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">description 里要写<b>触发词 + 适用场景 + 明确排除项</b>。"不适用于写新页面路由"这半句很重要——它告诉模型什么时候别用这个 skill，减少误触发。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">Markdown 正文是第二段。官方文档建议的骨架：</p>
+
+<p style="margin:0 0 12px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>· 用法总览</b>：1-3 句话，这个 skill 解决什么问题。</p>
+<p style="margin:0 0 12px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>· 什么时候触发</b>：触发词 / 场景 / 前置条件（"项目里必须有 tailwind.config.js"）。</p>
+<p style="margin:0 0 12px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>· 分步执行</b>：顺序很重要，一步步写。</p>
+<p style="margin:0 0 12px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>· 验收标准</b>：必须通过的命令 + 失败兜底。</p>
+<p style="margin:0 0 16px;font-size:15px;line-height:1.8;color:#2b2b2b;"><b>· references/ 按需加载</b>：别把所有细节塞进 SKILL.md，拆去 references/。正文里告诉模型"遇到 X 时读 references/y.md"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>渐进式披露</b>是官方强调的设计原则：SKILL.md 本身保持精简，引用才加载 references。这样模型读 skill 的时间花在理解主流程，细节需要时才展开，节省 token。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">skill 的放置位置也有讲究：</p>
+
+<table style="margin:16px 0 0;border-collapse:collapse;width:100%;font-size:14px;">
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">位置</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">作用域</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;background:#f5f5f7;font-weight:bold;color:#1d1d1f;">提交</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;"><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">~/.claude/skills/</code></td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">你所有项目</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">不提交</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;"><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">.claude/skills/</code></td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">当前项目</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">建议提交</td>
+</tr>
+<tr>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;"><code style="background:#f2f2f7;padding:1px 4px;border-radius:3px;">.agents/skills/</code></td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">跨工具通用</td>
+<td style="border:1px solid #e5e5ea;padding:10px 12px;color:#2b2b2b;">建议提交</td>
+</tr>
+</table>
+
+<p style="margin:22px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">Codex 让它自己装：</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:13px;color:#1d1d1f;line-height:1.9;">$skill-installer install https://github.com/you/your-skills/tree/main/skills/react-component</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 会被自动发现，放在仓库根目录或上层目录也行，monorepo 子目录会优先读最近那一层的 skill。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">04</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">跨语言、跨框架的剪裁</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">有了骨架之后，真正见功力的是"不同项目要补什么"。上面那张图给出一个速查表，下面逐个展开。</p>
+
+<p style="margin:24px 0 0;"><img src="assets/lang.png" style="width:100%;display:block;border-radius:6px;" /></p>
+<p style="text-align:center;font-size:13px;color:#8e8e93;margin:10px 0 0;line-height:1.6;">不同项目类型的剪裁 checklist</p>
+
+<p style="margin:24px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>TypeScript / React / Next.js</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 必加：pnpm / npm 锁文件策略（node_modules 不入库、lock 要 pin）；ESLint + Prettier 具体命令；hooks 规则（hooks-extra 的 exhaustiveness）；组件 / hooks / utils / types 的分层约定；Next.js 的 app router 约定（不要 pages/）。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 要调：让模型跳过 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">.next/</code> 产物；写组件时返回 JSX 片段而非重写整页；Tailwind 的 class 不要随便重排（Prettier 会按字母排，但改它会让 diff 膨胀）。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">特别注意：不要让 AI 引入新状态管理库，除非你在 AGENTS.md 里明确说"可以加 xstate"。默认它会在 zustand、jotai、redux 里轮流推荐。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>Python / FastAPI</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 必加：uv 或 poetry 的锁版本命令；ruff + mypy 必须零警告；测试文件在 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">tests/</code>、和源码分开（pytest 的约定）；路由 / 模型 / schema 分层。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 要调：让模型跳过 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">__pycache__/</code> 和 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">.venv/</code>；保留现有 import 分组（isort 的约定）；不要把 async 函数硬改成 sync。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">特别注意：AI 很爱引入 Pydantic model 做"校验器"——如果你们团队用的是 SQLModel 或 schema 独立文件，一定在 AGENTS.md 里明确说"不要新建 Pydantic BaseModel，用 X"。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>Java / Spring Boot</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 必加：Maven / Gradle 的 profile 差异（local vs ci vs prod）；spotless / checkstyle 命令；DTO 和 Entity 不能互转（用 MapStruct 或手动）；事务边界在 service 层、不要在 controller 里开 @Transactional。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 要调：DTO 字段改动要同步改 Entity 映射；不要让 AI 手动删除 Lombok 注解（它会觉得"没用的 @Getter 删掉更干净"）；Controller 里不要写业务逻辑（这个 AI 犯得最多）。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>Go</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 必加：<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">go.mod</code> 版本 pin；<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">gofmt</code> 不可关闭（Go 生态所有人都用，关了 diff 就炸）；单测文件同目录（<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">xxx_test.go</code> 和 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">xxx.go</code> 在同一目录）；main / internal / pkg 约定。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 要调：<code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">gofmt</code> 改了就提交，别让它单独跑；不要引入新框架（Go 生态鼓励标准库 + 少依赖，AI 爱瞎加）；错误处理别用 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">errors.Is</code> 之外的比较（AI 有时会改成字符串匹配）。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;"><b>Docker / K8s / 基础设施</b></p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 必加：Dockerfile 多阶段说明（哪些阶段是 prod 用的、哪些是 dev）；Helm values 分层（base / staging / prod）；Kustomize base/overlay 结构；镜像 tag 规范（commit sha 还是 semver）；<b>密钥存哪、不要存哪</b>（Secrets Manager vs .env.local）。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 要调：不要重写 FROM 基础镜像（AI 可能换成更"酷"的 Alpine）；env 用 values 传入不要硬写；YAML 缩进别让它随便对齐（kubectl apply 对空格敏感）；Helm chart 改完必须跑 <code style="background:#f2f2f7;padding:1px 5px;border-radius:3px;font-size:14px;">helm template</code> 验证输出。</p>
+
+<p style="text-align:center;font-size:52px;font-weight:900;color:#1a1a1a;letter-spacing:3px;line-height:1;margin:50px 0 0;">05</p>
+<p style="text-align:center;font-size:21px;font-weight:bold;color:#333;margin:10px 0 26px;">开始写，给你两份可以抄的模板</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">下面两份是我自己在用的，直接改字段就能用。</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:12.5px;color:#1d1d1f;line-height:1.8;"># AGENTS.md — 项目级 AI 说明（跨工具通用）<br/><br/>## 项目概览<br/>一句话定位：[比如 "多租户 SaaS 后端"]<br/>技术栈：FastAPI 0.115+ / SQLModel 0.0.22 / PostgreSQL 16 / Redis 7<br/>目录：<br/>  app/ — 路由、模型、schema<br/>  tests/ — pytest 集成测试<br/>  migrations/ — Alembic 迁移<br/><br/>## 构建与测试<br/>poetry install &amp;&amp; poetry shell<br/>ruff check app/ &amp;&amp; ruff format --check app/<br/>mypy app/<br/>pytest tests/ -x<br/><br/>## 代码规范<br/>DTO 和 Entity 禁止互转<br/>异步函数签名不硬改同步<br/>commit 信息中文，feat/xxx 分支<br/><br/>## 工作流<br/>改动先看 tests/ 里最相似的 fixture<br/>不要动 migrations/ 已合并的文件<br/>改完必须跑 ruff &amp;&amp; pytest<br/><br/>## 陷阱<br/>用户表 id 是 Snowflake，别改成自增 int<br/>Redis 是 pub/sub 用的，不要当 cache 设 TTL<br/><br/>## 验证清单<br/>改接口契约 → 跑 openapi 生成 → 同步前端 types<br/>改 DB schema → 写 Alembic 迁移 → 跑 data 脚本<br/><br/>## 本地 vs CI<br/>本地：docker compose up 启动 DB（.env.example 里有最小变量）<br/>CI：用 Testcontainers，自动挂 preview 环境</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">SKILL.md 模板（React 组件示例）：</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:16px 0;font-family:Menlo,Consolas,monospace;font-size:12.5px;color:#1d1d1f;line-height:1.8;">---<br/>name: react-component<br/>description: &gt;-<br/>  在现有项目里新增或修改 React 组件、Hooks、Tailwind 样式。<br/>  适用：新建 / 重构 / 优化组件。<br/>  不适用于：写新页面路由、改构建配置。<br/>---<br/><br/>## 什么时候触发<br/>用户要求写 / 改 React 组件、Hook、样式、Tailwind。<br/>前置：项目根目录有 tailwind.config.js。<br/><br/>## 分步执行<br/>1. 读现有同目录组件，找最相似的做参照<br/>2. 写组件：默认 Server Component，需要 client 时加 "use client"<br/>3. 样式：Tailwind，class 顺序按 Prettier（不要手动重排）<br/>4. 不要引入新状态管理：先看现有方案<br/>5. 跑 pnpm lint &amp;&amp; pnpm build<br/><br/>## 验收标准<br/>- <code>pnpm lint</code> 零报错<br/>- <code>pnpm build</code> 通过<br/>- TypeScript 无新增 error<br/>失败兜底：读 references/debug-build.md 排查</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">起步阶段别贪多。先写一份 AGENTS.md（骨架照 §2 来），再写一份最常用场景的 SKILL.md。跑一周，看 AI 还在哪些地方反复出错，把那些坑加进去。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">我自己那三份 skill 就是这么来的：第一版只有一份通用 skill，跑了两周后发现"写组件"和"写 SQL 迁移"的流程完全不同，拆开反而更准。</p>
+
+<p style="text-align:center;font-size:24px;font-weight:bold;color:#1a1a1a;line-height:1.7;padding:26px 0 6px;">AI 不会"读你脑子里的规范"，<br/>它只会读你写下来的那几段文本。</p>
+
+<p style="margin:14px 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">AGENTS.md 是项目说明书，SKILL.md 是 SOP 手册。两者都不是装饰。</p>
+
+<p style="margin:0 0 16px;font-size:16px;line-height:1.8;color:#2b2b2b;">花一个下午写好骨架，每两三个礼拜清一次过时命令。这件事的长期回报，比调一调模型参数、换更贵的套餐都大。</p>
+
+<p style="background:#f5f5f7;border-radius:8px;padding:16px 20px;margin:32px 0 0;font-size:14px;line-height:2;color:#2b2b2b;">
+<b>相关链接</b><br/>
+· Claude Code skills 文档：code.claude.com/docs/en/skills<br/>
+· SKILL.md 完整指南 PDF：resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf<br/>
+· AGENTS.md 跨工具对比：codex.danielvaughan.com/2026/05/27/agent-instruction-files-agents-md-claude-md-cross-tool-portability-codex-cli/
+</p>
