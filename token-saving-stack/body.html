@@ -1,0 +1,162 @@
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">月底打开账单，往往只有一行总数。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">输入花了多少、输出花了多少、缓存命中多少，哪个会话在偷偷烧钱，一概说不清。于是所有“省 token”的动作都变成了玄学：关两个插件、把提示词删短一点，然后祈祷下个月便宜些。</p>
+
+<p style="font-size:20px;font-weight:bold;color:#0f172a;line-height:1.7;margin:30px 0 22px;">看不见的账，是省不下来的。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">这篇讲四个工具。两个负责把账看清楚，两个负责把账压下去。它们不互相替代，拼在一起才是一条完整的链路。</p>
+
+<p style="margin:52px 0 0;"><span style="display:inline-block;background:#0f172a;color:#4ade80;font-size:15px;font-weight:bold;padding:5px 14px;border-radius:6px;letter-spacing:2px;font-family:Menlo,Consolas,monospace;">STEP 01</span></p>
+<p style="font-size:21px;font-weight:bold;color:#0f172a;margin:14px 0 24px;padding-left:13px;border-left:4px solid #22c55e;line-height:1.45;">先把四件事分开</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">“省 token”听起来是一件事，拆开其实是四件：</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;"><strong style="color:#0f172a;">计量</strong>——知道今天用了多少、花在哪个模型上；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;"><strong style="color:#0f172a;">观测</strong>——知道这些 token 是系统提示词、你的输入、工具返回，还是模型输出；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;"><strong style="color:#0f172a;">裁剪</strong>——把对话里已经用不上的大块内容从上下文中拿掉；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;"><strong style="color:#0f172a;">压缩</strong>——让模型说得更短，也让喂进去的日志、JSON、表格更薄。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">四个工具正好对得上这四段，顺序也基本是从左到右。</p>
+
+<p style="text-align:center;margin:26px 0 10px;"><img src="assets/stack.png" style="width:100%;border-radius:10px;display:block;" /></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;line-height:1.6;margin:0 0 30px;">四个工具的分工：先把账看见，再把上下文与输出压下来</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">下面按“先省、后看”的顺序一个个说，最后再讲怎么组合。</p>
+
+<p style="margin:52px 0 0;"><span style="display:inline-block;background:#0f172a;color:#4ade80;font-size:15px;font-weight:bold;padding:5px 14px;border-radius:6px;letter-spacing:2px;font-family:Menlo,Consolas,monospace;">STEP 02</span></p>
+<p style="font-size:21px;font-weight:bold;color:#0f172a;margin:14px 0 24px;padding-left:13px;border-left:4px solid #22c55e;line-height:1.45;">Caveman：让模型少说，也少读</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">Caveman 的名字很直白——把 agent 变成“穴居人”，话少、抓重点。它自己的说法是：<strong style="color:#0f172a;">让 AI agent 说得更少、读得更少，代码保持精确，脑子照样够用</strong>。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 18px;">安装很轻，一条命令起：</p>
+<p style="font-family:Menlo,Consolas,monospace;font-size:14px;color:#e2e8f0;background:#0f172a;border-radius:8px;padding:16px 18px;line-height:1.9;margin:0 0 24px;word-break:break-all;">npx @caveman-ai/cli@latest</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 18px;">如果你在 Claude Code 里用，也可以按插件方式装：</p>
+<p style="font-family:Menlo,Consolas,monospace;font-size:14px;color:#e2e8f0;background:#0f172a;border-radius:8px;padding:16px 18px;line-height:1.9;margin:0 0 24px;word-break:break-all;">claude plugin marketplace add JuliusBrussee/caveman<br/>claude plugin install caveman@caveman</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它把能力切成几块，常用的有三个开关：<strong style="color:#0f172a;">/caveman</strong> 是标准压缩，<strong style="color:#0f172a;">/ultracave</strong> 更激进，<strong style="color:#0f172a;">/caveman-compress</strong> 用来压缩 CLAUDE.md 这类记忆文件。想恢复原样，输入 <strong style="color:#0f172a;">caveman off</strong> 即可。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">真正有意思的是它省在哪。仓库里给了一组很硬的对比：同一份内容，压缩前后差了一到两个数量级。</p>
+
+<p style="text-align:center;margin:26px 0 10px;"><img src="assets/savings.png" style="width:100%;border-radius:10px;display:block;" /></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;line-height:1.6;margin:0 0 30px;">左：输入侧大幅瘦身；右：同一道题的输出 token 对比（数据来自 Caveman 仓库）</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">CSV 表格从 28,041 token 压到 314，构建日志从 22,810 压到 348，YAML 从 20,447 压到 178。测试输出、JSON 也都是同样的量级。这类内容本来信息密度就低，模型却要逐字读完，压掉的是纯噪声。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">输出侧靠的不是“请简洁一点”这种软要求。官方基准里，没有任何指令时输出 6,983 token，加一句“Answer concisely”降到 4,334，用 <strong style="color:#166534;">/caveman</strong> 是 4,119，<strong style="color:#166534;">/ultracave</strong> 直接到 2,693。</p>
+
+<p style="font-size:20px;font-weight:bold;color:#166534;line-height:1.7;margin:30px 0 22px;">一句“简洁点”省不下多少，改写输出习惯才省得多。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">记忆文件的压缩也挺实用。五个文件合计从 6,198 token 降到 4,138，降幅 22.8% 到 49.1% 不等，标题、代码、路径都保留，并且会自动留备份。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它的好处是<strong style="color:#0f172a;">跨客户端</strong>：Claude Code、Codex、Gemini、OpenCode 都能挂。代价也写在明面上——压缩规则本身要占约 1,160 个输入 token；如果你用的是<strong style="color:#0f172a;">按请求计费</strong>的套餐（比如部分 Copilot 场景），答案变短并不会让你少付钱。</p>
+
+<p style="margin:52px 0 0;"><span style="display:inline-block;background:#0f172a;color:#4ade80;font-size:15px;font-weight:bold;padding:5px 14px;border-radius:6px;letter-spacing:2px;font-family:Menlo,Consolas,monospace;">STEP 03</span></p>
+<p style="font-size:21px;font-weight:bold;color:#0f172a;margin:14px 0 24px;padding-left:13px;border-left:4px solid #22c55e;line-height:1.45;">opencode-dcp：把用不上的上下文剪掉</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">如果 Caveman 是在出口拧小水龙头，DCP 就是在水箱里捞走已经用不上的东西。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它的全称是 Dynamic Context Pruning，动态上下文裁剪，专为 OpenCode V2 写的。安装只要一行：</p>
+
+<p style="font-family:Menlo,Consolas,monospace;font-size:14px;color:#e2e8f0;background:#0f172a;border-radius:8px;padding:16px 18px;line-height:1.9;margin:0 0 24px;word-break:break-all;">opencode plugin add opencode-dcp</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">装完会自动写进全局配置，TUI 面板也跟着加载。想按项目调参数，就在 <strong style="color:#0f172a;">opencode.jsonc</strong> 里加一段：</p>
+
+<p style="font-family:Menlo,Consolas,monospace;font-size:13px;color:#e2e8f0;background:#0f172a;border-radius:8px;padding:16px 18px;line-height:1.85;margin:0 0 24px;word-break:break-all;">{<br/>&nbsp;&nbsp;"plugins": [<br/>&nbsp;&nbsp;&nbsp;&nbsp;{ "package": "opencode-dcp",<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"options": { "maxContextLimit": "70%" } }<br/>&nbsp;&nbsp;]<br/>}</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它的关键设计是：<strong style="color:#0f172a;">只改发给模型的那份 transcript，磁盘上的会话历史一个字不动</strong>。所以你随时能回看原文，不会因为“压缩”把记录弄丢。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">具体怎么剪，交给模型自己判断。它有一个 <strong style="color:#0f172a;">prune</strong> 工具，把已经结束的对话块用一段摘要替换。区间用边界 ID 寻址，消息是 m0001 这样，压缩块是 b1 这样。模型会挑互不重叠的区间，每段写一条摘要；如果新区间覆盖了老压缩块，写进 <strong style="color:#0f172a;">(bN)</strong> 就把那块内容继续带上，不写就等于丢掉。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">除了对话块，过期和报错的<strong style="color:#0f172a;">工具输出</strong>也会被换成短占位符。有些东西绝对不能碰，就用 glob 保护起来：<strong style="color:#0f172a;">protectedTools</strong> 里写 “mcp*”，<strong style="color:#0f172a;">protectedFilePatterns</strong> 里写 “secrets/**”。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">用量越过 maxContextLimit 时，它会提醒模型“该剪了”，并把裁剪预算和模型窗口一起报出来。剪完下一次发送会得到确认。TUI 底部会实时显示省了多少：</p>
+
+<p style="text-align:center;margin:26px 0 10px;"><img src="assets/dcp-tui.png" style="width:100%;border-radius:10px;display:block;" /></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;line-height:1.6;margin:0 0 30px;">状态栏里的 DCP −38% · 8.1k pruned，就是最近一次发送省下的量（示意图）</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">没有可剪的块时，它显示的是窗口压力，比如 <strong style="color:#0f172a;">DCP idle · 62% of window</strong>。想手动触发一次，输入 <strong style="color:#0f172a;">/dcp-prune</strong>，后面可以跟 focus 说明重点。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">另外两个默认策略值得知道：去重和清理报错。它们的作用不只是省 token，还能让空闲会话的提示词前缀保持稳定——这对<strong style="color:#0f172a;">命中缓存</strong>很重要，前缀一变，缓存就白存了。</p>
+
+<p style="margin:52px 0 0;"><span style="display:inline-block;background:#0f172a;color:#4ade80;font-size:15px;font-weight:bold;padding:5px 14px;border-radius:6px;letter-spacing:2px;font-family:Menlo,Consolas,monospace;">STEP 04</span></p>
+<p style="font-size:21px;font-weight:bold;color:#0f172a;margin:14px 0 24px;padding-left:13px;border-left:4px solid #22c55e;line-height:1.45;">opencode-tokenwatch：OpenCode 里的实时仪表盘</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">前两个都在改行为，tokenwatch 不一样，它只负责看。但“看”恰恰是省的第一步。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">装法也很直接：</p>
+
+<p style="font-family:Menlo,Consolas,monospace;font-size:14px;color:#e2e8f0;background:#0f172a;border-radius:8px;padding:16px 18px;line-height:1.9;margin:0 0 18px;word-break:break-all;">npm install opencode-tokenwatch</p>
+<p style="font-family:Menlo,Consolas,monospace;font-size:13px;color:#e2e8f0;background:#0f172a;border-radius:8px;padding:16px 18px;line-height:1.85;margin:0 0 24px;word-break:break-all;">{<br/>&nbsp;&nbsp;"plugin": ["opencode-tokenwatch"]<br/>}</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">重开 OpenCode，侧边栏就会多一块面板。它给的东西比较细：</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· 每个模型的输入、输出 token，预估花费，缓存命中率；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· 首字延迟（TTFT）和按生成耗时加权的 TPS；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· 把 token 拆成<strong style="color:#0f172a;">系统提示词、用户输入、工具调用、模型输出</strong>四类；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">· 缓存命中率旁边带箭头，告诉你最近几次是在涨还是在跌。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">最后这一类特别有用。很多人以为 token 都花在自己写的话上，一拆开才发现，大头是工具返回和系统提示词。<strong style="color:#0f172a;">定位到大头，才知道该压哪里。</strong></p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">在终端里输入 <strong style="color:#0f172a;">/usage</strong>，会在浏览器里打开一份 ECharts 交互报表，能看历史趋势、模型横向对比和失败请求统计，也能一键导出 JSON 或 Markdown，默认落在 ~/.opencode/reports/ 目录。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它借用 OpenCode Server 的插件能力在后台静默采集，Desktop、CLI、API 的会话都会记；同时兼容 OpenCode 1.x 和 2 beta，Node 18 以上即可。</p>
+
+<p style="font-size:20px;font-weight:bold;color:#0f172a;line-height:1.7;margin:30px 0 22px;">仪表盘本身不省 token，它只是告诉你该从哪里省。</p>
+
+<p style="margin:52px 0 0;"><span style="display:inline-block;background:#0f172a;color:#4ade80;font-size:15px;font-weight:bold;padding:5px 14px;border-radius:6px;letter-spacing:2px;font-family:Menlo,Consolas,monospace;">STEP 05</span></p>
+<p style="font-size:21px;font-weight:bold;color:#0f172a;margin:14px 0 24px;padding-left:13px;border-left:4px solid #22c55e;line-height:1.45;">wb-token-meter：托盘上的一本多端账本</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">前面几个要么在 OpenCode 里，要么是跨 agent 的规则层。但现实是，很多人同时装着 WorkBuddy、Trae、Kimi Code、ZCode 好几个客户端，账本散在各处，谁也不认识谁。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">wb-token-meter 干的就是这件事：<strong style="color:#0f172a;">一个常驻托盘的本地用量面板，同时看十个客户端的消耗</strong>。它是第三方开源工具（MIT），Electron 写的，跟各家官方都没关系。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">去它的 Releases 下载就行。Windows 有安装版和免安装版两个 exe，macOS 有 Apple 芯片和 Intel 两个 dmg。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它支持的源包括 WorkBuddy、Qoder CN、Kimi Code、ZCode、Xiaomi MiMo、Reasonix、DeepSeek Harness、Trae CN、OpenCode 和 OpenCode Go。面板右上角随时切，各算各的账，互不影响。</p>
+
+<p style="text-align:center;margin:26px 0 10px;"><img src="assets/panel.png" style="width:100%;border-radius:10px;display:block;" /></p>
+<p style="text-align:center;font-size:13px;color:#9ca3af;line-height:1.6;margin:0 0 30px;">面板结构示意：今日用量、上下文水位、token 构成、14 天趋势与模型排行</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">它把信息分成几块，基本覆盖了日常想知道的所有角度：</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· <strong style="color:#0f172a;">今日</strong>：token 总量，下面拆输入、输出、调用次数；没有积分体系的数据源会把第二个大数字换成缓存命中率；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· <strong style="color:#0f172a;">上下文</strong>：一根带红线区的仪表，显示当前会话用了多少，70% 和 90% 两条分界印在刻度上；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· <strong style="color:#0f172a;">结构</strong>：输入、缓存命中、输出、思考四块的分布；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· <strong style="color:#0f172a;">14 天</strong>：每日柱状图，没用的日子补成 0 高度，时间轴不会跳；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">· <strong style="color:#0f172a;">活跃</strong>：近 26 周的贡献图，颜色越深用量越大；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">· <strong style="color:#0f172a;">模型 / 项目、会话</strong>：按用量排行，能追到具体某个会话的 token 和上下文水位。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">托盘图标本身也是一圈进度环，显示当前活跃会话的上下文水位，颜色随水位变化；鼠标悬停能看到今日 token。另外还有一个桌面小胶囊，单击能展开详情卡，拖动位置会被记住。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">隐私这块做得比较克制：<strong style="color:#0f172a;">除 OpenCode Go 的额度查询、Trae CN 的积分查询和更新检查外，所有数据都在本地读取和计算，不修改任何原始文件</strong>。出站请求只有三个，而且只带各自的凭证。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">有几个已知限制要提前知道。Qoder CN 本地根本没有 token，只有积分和上下文水位比例，所以它的 token 结构卡是整块收起的；Trae CN 的用量库是加密的，密钥得从运行中的进程内存里取，<strong style="color:#0f172a;">App 没在跑的时候 token 会显示 0</strong>，取到密钥后一次全量扫描大约 21 秒；还有些源的上下文上限拿不到，只能显示已用量，不给百分比。</p>
+
+<p style="margin:52px 0 0;"><span style="display:inline-block;background:#0f172a;color:#4ade80;font-size:15px;font-weight:bold;padding:5px 14px;border-radius:6px;letter-spacing:2px;font-family:Menlo,Consolas,monospace;">STEP 06</span></p>
+<p style="font-size:21px;font-weight:bold;color:#0f172a;margin:14px 0 24px;padding-left:13px;border-left:4px solid #22c55e;line-height:1.45;">怎么组合，以及哪些地方别踩坑</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">顺序建议很明确：<strong style="color:#0f172a;">先装计量，再开裁剪，最后压缩</strong>。没有基线就调参，等于闭着眼睛改代码。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">第一步，装 wb-token-meter 或 tokenwatch，先看清一周的真实消耗；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">第二步，在 OpenCode 里开 DCP，把 maxContextLimit 设成 70% 左右，先只开默认策略；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;">第三步，用 Caveman 压工具输出和记忆文件，输出侧从 /caveman 开始，别一上来就 /ultracave；</p>
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">第四步，回面板对照，看省下来的到底是输入、输出，还是只是缓存变了。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">几个边界必须说清楚。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;"><strong style="color:#0f172a;">裁剪会丢信息。</strong>DCP 只改发出去的 transcript，这点很安全，但剪掉的内容模型确实看不到了。mcp 工具和密钥目录一定要放进保护规则，重要的架构决策别让它压成一句摘要。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;"><strong style="color:#0f172a;">压缩有固定成本。</strong>Caveman 的规则本身要占一千多个输入 token，短会话里可能得不偿失；按请求计费的套餐，输出变短也不省钱。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 14px;"><strong style="color:#0f172a;">别一次全开。</strong>同时上裁剪和压缩，省了也说不清是谁省的，出了问题更难回滚。一次只动一个变量。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;"><strong style="color:#0f172a;">计量工具有开销。</strong>tokenwatch 在后台采集，wb-token-meter 首次扫描可能要几秒，这些都是真实成本，只是很小。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">还有一点容易忽略：<strong style="color:#0f172a;">上下文不是越短越好</strong>。压得太狠，模型反复问你要同一份文件，来回几轮反而更贵。真正的目标是“该在的都在，不该在的别占位”。</p>
+
+<p style="font-size:20px;font-weight:bold;color:#166534;line-height:1.7;margin:34px 0 22px;">先量化，再优化。这句话在 token 上同样成立。</p>
+
+<p style="font-size:16px;color:#374151;line-height:1.95;margin:0 0 22px;">四个工具，两种角色：wb-token-meter 和 opencode-tokenwatch 让你看见账，opencode-dcp 和 Caveman 让你把账压下来。先看见，再动手，省下来的每一分钱都有出处。</p>
+
+<p style="font-size:13px;color:#9ca3af;line-height:1.8;margin:34px 0 0;border-top:1px solid #e5e7eb;padding-top:18px;">参考：JuliusBrussee/caveman、arafays/opencode-dcp、TTWK/opencode-tokenwatch、FightZhanAng/wb-token-meter 四个开源仓库的 README。文中面板与终端截图为结构示意，非产品真实界面；具体功能与参数以仓库最新版本为准。</p>
